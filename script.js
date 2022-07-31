@@ -16,10 +16,7 @@ class Card{
 let suits = ["clubs","spades","diamonds","hearts"];
 let values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
 let deck = [];
-let player1 = [];
-let player2 = [];
-let player3 = [];
-let player4 = [];
+let players = [[],[],[],[]]; //all 4 player in the players array
 let team1 = 0;
 let team2 = 0;
 
@@ -58,63 +55,35 @@ function shuffle(){
 
 //deal each player 6 cards 3 at a time so run the loop twice, call the deal3Helper twice
 function deal(){
-    for(let i = 0; i < 2; i++){
-        player1.push(deck.pop());
-        player1.push(deck.pop());
-        player1.push(deck.pop());
-        player2.push(deck.pop());
-        player2.push(deck.pop());
-        player2.push(deck.pop());
-        player3.push(deck.pop());
-        player3.push(deck.pop());
-        player3.push(deck.pop());
-        player4.push(deck.pop());
-        player4.push(deck.pop());
-        player4.push(deck.pop());
+    //players 1,2,3,4
+    for(let i = 0; i < 4; i++){
+        //cards 1,2,3,4,5,6
+        for(let j = 0; j < 6; j++){
+            players[i].push(deck.pop());
+        }
     }
     console.log("dealt");
 }
 function showCards(){
-    let x = player1[0].suit + " " + player1[0].value;
-    document.getElementById("p1c1").textContent = x;
-    console.log(x);
+    //create a table and body element
+    const tbl = document.createElement("table");
+    const tbleBody = document.createElement("tbody");
+    //loop for each player
+    for(let i = 0; i < 4; i++){
+        const row = document.createElement("tr");
+        const title = document.createElement("td");
+        const cellText = document.createTextNode("Player " + (i+1));
+        title.appendChild(cellText);
+        row.appendChild(title);
+        //loop for each card of the player
+        for(let j = 0; j < 6; j++){
+            const tableData = document.createElement("td");
+            const text = document.createTextNode(players[i][j].value + " " + players[i][j].suit);
+            tableData.appendChild(text);
+            row.appendChild(tableData);
+        }
+        tbleBody.appendChild(row);
+    }
+    tbl.appendChild(tbleBody);
+    document.body.appendChild(tbl);
 }
-
-function generate_table() {
-    // creates a <table> element and a <tbody> element
-     const tbl = document.createElement("table");
-     const tblBody = document.createElement("tbody");
-   
-     // creating all cells
-     for (let i = 0; i < 2; i++) {
-       // creates a table row
-       const row = document.createElement("tr");
-   
-       for (let j = 0; j < 2; j++) {
-         // Create a <td> element and a text node, make the text
-         // node the contents of the <td>, and put the <td> at
-         // the end of the table row
-         const cell = document.createElement("td");
-         const cellText = document.createTextNode(`cell in row ${i}, column ${j}`);
-         cell.appendChild(cellText);
-         row.appendChild(cell);
-       }
-   
-       // add the row to the end of the table body
-       tblBody.appendChild(row);
-     }
-   
-     // put the <tbody> in the <table>
-     tbl.appendChild(tblBody);
-     // appends <table> into <body>
-     document.body.appendChild(tbl);
-     // sets the border attribute of tbl to '2'
-     tbl.setAttribute("border", "2");
-   }
-   
-
-
-console.log(player1);
-console.log(player2);
-console.log(player3);
-console.log(player4);
