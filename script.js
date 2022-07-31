@@ -1,8 +1,9 @@
-/*TODO. make github repo.  make it html. I have createDeck,shuffle,deal functions working.  Next step
+/*TODO  I have createDeck,shuffle,deal functions working.  Next step
 is to make a quick war game and try to keep the score of it. Need to display cards in CSS.
 
 */
 
+//make a table displaying each players respective cards
 
 class Card{
     constructor(suit, value){
@@ -22,9 +23,14 @@ let player4 = [];
 let team1 = 0;
 let team2 = 0;
 
-createDeck();
-shuffle();
-deal();
+//createDeck();
+//shuffle();
+//deal();
+function startGame(){
+    createDeck();
+    shuffle();
+    deal();
+}
 
 //create a deck start with the joker then add the rest with loops from suits and values array
 function createDeck(){
@@ -66,7 +72,46 @@ function deal(){
         player4.push(deck.pop());
         player4.push(deck.pop());
     }
+    console.log("dealt");
 }
+function showCards(){
+    let x = player1[0].suit + " " + player1[0].value;
+    document.getElementById("p1c1").textContent = x;
+    console.log(x);
+}
+
+function generate_table() {
+    // creates a <table> element and a <tbody> element
+     const tbl = document.createElement("table");
+     const tblBody = document.createElement("tbody");
+   
+     // creating all cells
+     for (let i = 0; i < 2; i++) {
+       // creates a table row
+       const row = document.createElement("tr");
+   
+       for (let j = 0; j < 2; j++) {
+         // Create a <td> element and a text node, make the text
+         // node the contents of the <td>, and put the <td> at
+         // the end of the table row
+         const cell = document.createElement("td");
+         const cellText = document.createTextNode(`cell in row ${i}, column ${j}`);
+         cell.appendChild(cellText);
+         row.appendChild(cell);
+       }
+   
+       // add the row to the end of the table body
+       tblBody.appendChild(row);
+     }
+   
+     // put the <tbody> in the <table>
+     tbl.appendChild(tblBody);
+     // appends <table> into <body>
+     document.body.appendChild(tbl);
+     // sets the border attribute of tbl to '2'
+     tbl.setAttribute("border", "2");
+   }
+   
 
 
 console.log(player1);
