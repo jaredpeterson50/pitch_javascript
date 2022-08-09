@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .cardPlayer{
+            display: inline-block;
+            position: absolute;
+            width:10vw;
+            transform: translateX(-50%);
+        }
+        .cardComputer{
+            display: inline-block;
+            position: absolute;
+            width:10vw;
+            transform: translateY(-50%);
+            transform:rotate(90deg);
+        }
+        body{
+            background-color: grey;
+        }
+        img{
+            max-width: 100%;
+        }
+        .p1c1{
+            left: 45%; 
+            
+        }
+        .p1c2{
+            left:47%;
+        }
+        .p1c3{
+            left:49%;
+        }
+        .p1c4{
+            left:51%;
+        }
+        .p1c5{
+            left:53%;
+        }
+        .p1c6{
+            left:55%;
+        }
+        .p3c1{
+            top:35vh;
+        }
+        .p3c2{
+            top:38vh;           
+        }
+        .p3c3{
+            top:41vh;          
+        }
+        .p3c4{
+            top:44vh;        
+        }
+        .p3c5{
+            top:47vh;            
+        }
+        .p3c6{
+            top:50vh;           
+        }
+        .p2c1{
+            left: 45%;
+            bottom:0;          
+        }
+        .p2c2{
+            left: 47%;
+            bottom:0;         
+        }
+        .p2c3{
+            left: 49%;
+            bottom:0;         
+        }
+        .p2c4{
+            left: 51%;
+            bottom:0;          
+        }
+        .p2c5{
+            left: 53%;
+            bottom:0;      
+        }
+        .p2c6{
+            left: 55%;
+            bottom:0;         
+        }
+        .p4c1{
+            top:35vh;
+            right:5vw;
+        }
+        .p4c2{
+            top:38vh;
+            right:5vw;
+        }
+        .p4c3{
+            top:41vh;
+            right:5vw;
+        }
+        .p4c4{
+            top:44vh;
+            right:5vw;
+        }
+        .p4c5{
+            top:47vh;
+            right:5vw;
+        }
+        .p4c6{
+            top:50vh;
+            right:5vw;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="p1c1 cardPlayer player1"><img src="img/spades11.svg"></div>
+    <div class="p1c2 cardPlayer player1"><img src="img/spades11.svg"></div>
+    <div class="p1c3 cardPlayer player1"><img src="img/spades11.svg"></div>
+    <div class="p1c4 cardPlayer player1"><img src="img/spades11.svg"></div>
+    <div class="p1c5 cardPlayer player1"><img src="img/spades11.svg"></div>
+    <div class="p1c6 cardPlayer player1"><img src="img/spades11.svg"></div>
+    <div class="p2c1 cardPlayer player2"><img src="img/spades13.svg"></div>
+    <div class="p2c2 cardPlayer"><img src="img/spades13.svg"></div>
+    <div class="p2c3 cardPlayer"><img src="img/spades13.svg"></div>
+    <div class="p2c4 cardPlayer"><img src="img/spades13.svg"></div>
+    <div class="p2c5 cardPlayer"><img src="img/spades13.svg"></div>
+    <div class="p2c6 cardPlayer"><img src="img/spades13.svg"></div>
+    <div class="p3c1 cardComputer"><img src="img/spades10.svg"></div>
+    <div class="p3c2 cardComputer"><img src="img/spades10.svg"></div>
+    <div class="p3c3 cardComputer"><img src="img/spades10.svg"></div>
+    <div class="p3c4 cardComputer"><img src="img/spades10.svg"></div>
+    <div class="p3c5 cardComputer"><img src="img/spades10.svg"></div>
+    <div class="p3c6 cardComputer"><img src="img/spades10.svg"></div>
+    <div class="p4c1 cardComputer"><img src="img/spades12.svg"></div>
+    <div class="p4c2 cardComputer"><img src="img/spades12.svg"></div>
+    <div class="p4c3 cardComputer"><img src="img/spades12.svg"></div>
+    <div class="p4c4 cardComputer"><img src="img/spades12.svg"></div>
+    <div class="p4c5 cardComputer"><img src="img/spades12.svg"></div>
+    <div class="p4c6 cardComputer"><img src="img/spades12.svg"></div>
+    <script>
+        const var1 = document.querySelectorAll('.player1');
+        for(let i = 0; i < var1.length; i++){
+            var1[i].addEventListener('click', e=>{e.target.style.transform='translateY(10vh)'});
+        }
+        console.log(var1[0]);
+        console.log(var1.length);
+        //var1.addEventListener('click', e=>{e.target.style.transform='translateY(10vh)'})
+
+        function p1Transform(){
+            //document.getElementsByClassName('p1c1')[0].style.transform='translateY(10vh)';
+        
+           
+
+        }
+    </script>
+</body>
+</html>
