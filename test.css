@@ -1,33 +1,170 @@
+.bidBtn{
+    display:block;
+    text-align: center;
+    border:1px solid black;
+}
+.bid{
+    text-align: center;
+}
+.bidLabel{
+    text-align: center;
+    border-bottom: 1px solid black;
 
-*{
-    box-sizing: border-box;
-}.grid-container{
-    display: grid;
-    grid-template-columns: repeat(6, .8fr);
-    background-color: blue;
-    margin-left: 20vw;
-    margin-right: 20vw;
 }
-.item img{
-    object-fit: contain;
-    max-width: 100%;
-    max-height: 100%;
-}
-.vert-container{
+.bidding{
+    position: absolute;
     display:grid;
-    grid-template-rows: repeat(6, 5vw);
-    background-color: blue;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border:1px solid black;
+    text-align: center;
+
 }
-.vert img{
+.scoreboard{
+    position: absolute;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    right:5vw;
+    border:1px solid black;
+}
+.scoreboardHeader{
+    grid-column: 1 /  span 2;
+    font-weight:bold;
+    border-bottom: 1px solid black;
+}
+.scoreItem{
+    display:block;
+}
+.gameInfo{
+    position: absolute;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    top:10vh;
+    border:1px solid black;
+}
+
+.bidTable{
+    display: block;
+  }
+  .bidButtons{
+    position:absolute;
+    display: inline-block;
+    overflow:hidden;
+    top:50px;
+    margin:40vh 40vw;  /*top right bottom left*/
+    transform: translateY(-50%);
+    border: 1px solid black;
+  }
+  .player1, .player2{
+    display: inline-block;
+    position: absolute;
+    width:10vw;
+    transform: translateX(-50%);
+  }
+  
+  .player3, .player4{
+    display: inline-block;
+    position: absolute;
+    width:10vw;
+    transform: translateY(-50%);
     transform:rotate(90deg);
-    object-fit: contain;
-    max-width: 80%;
-    max-height: 80%;
+  }
+  body{
+    background-color: grey;
+  }
+  img{
+    max-width: 100%;
+  }
+  .p1c1{
+    left: 45%; 
     
-}
-.rot{
-    transform:rotate(90deg);
-    object-fit: cover;
-    max-width: 100vh;
-    max-height: 100vw;
-}
+  }
+  .p1c2{
+    left:47%;
+  }
+  .p1c3{
+    left:49%;
+  }
+  .p1c4{
+    left:51%;
+  }
+  .p1c5{
+    left:53%;
+  }
+  .p1c6{
+    left:55%;
+  }
+  .p3c1{
+    top:35vh;
+    left:2vw;
+  }
+  .p3c2{
+    top:38vh; 
+    left:2vw;          
+  }
+  .p3c3{
+    top:41vh;        
+    left:2vw;  
+  }
+  .p3c4{
+    top:44vh;  
+    left:2vw;      
+  }
+  .p3c5{
+    top:47vh; 
+    left:2vw;           
+  }
+  .p3c6{
+    top:50vh;   
+    left:2vw;        
+  }
+  .p2c1{
+    left: 45%;
+    bottom:2vh;          
+  }
+  .p2c2{
+    left: 47%;
+    bottom:2vh;          
+  }
+  .p2c3{
+    left: 49%;
+    bottom:2vh;         
+  }
+  .p2c4{
+    left: 51%;
+    bottom:2vh;       
+  }
+  .p2c5{
+    left: 53%;
+    bottom:2vh;     
+  }
+  .p2c6{
+    left: 55%;
+    bottom:2vh;        
+  }
+  .p4c1{
+    top:35vh;
+    right:5vw;
+  }
+  .p4c2{
+    top:38vh;
+    right:5vw;
+  }
+  .p4c3{
+    top:41vh;
+    right:5vw;
+  }
+  .p4c4{
+    top:44vh;
+    right:5vw;
+  }
+  .p4c5{
+    top:47vh;
+    right:5vw;
+  }
+  .p4c6{
+    top:50vh;
+    right:5vw;
+  }

@@ -1,8 +1,7 @@
-/*TODO download svg files of deck and map each value to its cards
-
+/*
+    CSS transforms... rotate and translate
+    
 */
-
-//make a table displaying each players respective cards
 
 class Card{
     constructor(suit, value){
@@ -60,29 +59,16 @@ function deal(){
     }
 }
 function showCards(){
-    //create a table and body element
-    const tbl = document.createElement("table");
-    const tbleBody = document.createElement("tbody");
-    //loop for each player
     for(let i = 0; i < 4; i++){
-        const row = document.createElement("tr");
-        const title = document.createElement("td");
-        const cellText = document.createTextNode("Player " + (i+1));
-        title.appendChild(cellText);
-        row.appendChild(title);
-        //loop for each card of the player
         for(let j = 0; j < 6; j++){
-            const tableData = document.createElement("td");
+            const newCard = document.createElement("div");
+            newCard.classList.add(`player${i+1}`, 'cardPlayer', `p${i+1}c${j+1}`);
+            document.body.appendChild(newCard);
+            const pic = document.createElement("img");
             const path = "img/" + players[i][j].suit + players[i][j].value + ".svg";
-            const img = document.createElement("img");
-            img.src=path;
-            tableData.appendChild(img);
-            //const text = document.createTextNode(players[i][j].value + " " + players[i][j].suit);
-            //tableData.appendChild(text);
-            row.appendChild(tableData);
+            pic.src=path;
+            newCard.appendChild(pic);
         }
-        tbleBody.appendChild(row);
     }
-    tbl.appendChild(tbleBody);
-    document.body.appendChild(tbl);
 }
+

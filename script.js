@@ -1,8 +1,3 @@
-/*
-    CSS transforms... rotate and translate
-    
-*/
-
 class Card{
     constructor(suit, value){
         this.value = value;
@@ -22,6 +17,7 @@ function startGame(){
     createDeck();
     shuffle();
     deal();
+    showCards();
 }
 
 //create a deck start with the joker then add the rest with loops from suits and values array

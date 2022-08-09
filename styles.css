@@ -1,12 +1,81 @@
+.dealBtn{
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+
+}
+.bidBtn{
+  display:block;
+  text-align: center;
+  border:1px solid black;
+}
+.bid{
+  text-align: center;
+}
+.bidLabel{
+  text-align: center;
+  border-bottom: 1px solid black;
+
+}
 .bidding{
+  position: absolute;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border:1px solid black;
+  text-align: center;
+
+}
+.scoreboard{
+  position: absolute;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  right:5vw;
+  border:1px solid black;
+}
+.scoreboardHeader{
+  grid-column: 1 /  span 2;
+  font-weight:bold;
+  font-size: larger;
+  border-bottom: 1px solid black;
+}
+.scoreLabel{
+  font-weight: bold;
+}
+.scoreValue{
+  border-left: 1px solid black;
+}
+.gameInfo{
+  position: absolute;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  top:0;
+  left:5vw;
+  border:1px solid black;
+}
+.gameLabel{
+  font-weight: bold;
+}
+.gameValue{
+  border-left: 1px solid black;
+}
+
+.bidTable{
+  display: block;
+}
+.bidButtons{
+  position:absolute;
   display: inline-block;
-  
-  height: 30vh;
+  overflow:hidden;
   top:50px;
-  margin:40vh 30vw;  /*top right bottom left*/
+  margin:40vh 40vw;  /*top right bottom left*/
   transform: translateY(-50%);
   border: 1px solid black;
 }
+
 .player1, .player2{
   display: inline-block;
   position: absolute;
@@ -48,45 +117,51 @@ img{
 }
 .p3c1{
   top:35vh;
+  left:2vw;
 }
 .p3c2{
-  top:38vh;           
+  top:38vh; 
+  left:2vw;          
 }
 .p3c3{
-  top:41vh;          
+  top:41vh;        
+  left:2vw;  
 }
 .p3c4{
-  top:44vh;        
+  top:44vh;  
+  left:2vw;      
 }
 .p3c5{
-  top:47vh;            
+  top:47vh; 
+  left:2vw;           
 }
 .p3c6{
-  top:50vh;           
+  top:50vh;   
+  left:2vw;        
 }
 .p2c1{
   left: 45%;
-  bottom:0;          
+  bottom:2vh;          
 }
 .p2c2{
   left: 47%;
-  bottom:0;         
+  bottom:2vh;          
 }
 .p2c3{
   left: 49%;
-  bottom:0;         
+  bottom:2vh;         
 }
 .p2c4{
   left: 51%;
-  bottom:0;          
+  bottom:2vh;       
 }
 .p2c5{
   left: 53%;
-  bottom:0;      
+  bottom:2vh;     
 }
 .p2c6{
   left: 55%;
-  bottom:0;         
+  bottom:2vh;        
 }
 .p4c1{
   top:35vh;
