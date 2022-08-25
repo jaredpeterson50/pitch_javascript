@@ -1,14 +1,24 @@
+.passBtn{
+  grid-column: 2/5;
+}
 .dealBtn{
   position: absolute;
-  left: 50%;
+  left: 80%;
   top: 30%;
   transform: translate(-50%, -50%);
+}
+.bidBtn:hover {
+  background-color: yellow;
 
+}
+.bidBtn:active{
+  background-color: orange;
 }
 .bidBtn{
   display:block;
   text-align: center;
   border:1px solid black;
+  cursor: pointer;
 }
 .bid{
   text-align: center;
@@ -16,6 +26,7 @@
 .bidLabel{
   text-align: center;
   border-bottom: 1px solid black;
+  
 
 }
 .bidding{
@@ -39,14 +50,19 @@
 .scoreboardHeader{
   grid-column: 1 /  span 2;
   font-weight:bold;
-  font-size: larger;
+  font-size: .7rem;
   border-bottom: 1px solid black;
 }
 .scoreLabel{
+  font-size: .7rem;
   font-weight: bold;
+  padding:0;
 }
 .scoreValue{
+  font-size: .7rem;
   border-left: 1px solid black;
+  padding:0;
+  text-align: center;
 }
 .gameInfo{
   position: absolute;
@@ -58,9 +74,12 @@
 }
 .gameLabel{
   font-weight: bold;
+  font-size: .7rem;
 }
 .gameValue{
   border-left: 1px solid black;
+  font-size: .7rem;
+  text-align: center;
 }
 
 .bidTable{
@@ -75,115 +94,124 @@
   transform: translateY(-50%);
   border: 1px solid black;
 }
-
-.player1, .player2{
+.player0, .player1{
   display: inline-block;
   position: absolute;
-  width:10vw;
+  width:11vw;
   transform: translateX(-50%);
 }
 
-.player3, .player4{
+.player2, .player3{
   display: inline-block;
   position: absolute;
-  width:10vw;
+  width:11vw;
   transform: translateY(-50%);
   transform:rotate(90deg);
 }
-body{
-  background-color: grey;
+
+@media (max-width:500px){
+  .player0, .player1{
+    width:25vw;
+  }
+  .player2, .player3{
+    width:16vw;
+  }
+}
+
+html{
+  background-color: darkgreen;
 }
 img{
   max-width: 100%;
 }
-.p1c1{
-  left: 45%; 
+.p0c0{
+  left: 42%; 
   
 }
-.p1c2{
-  left:47%;
+.p0c1{
+  left:45%;
 }
-.p1c3{
-  left:49%;
+.p0c2{
+  left:48%;
 }
-.p1c4{
+.p0c3{
   left:51%;
 }
-.p1c5{
-  left:53%;
+.p0c4{
+  left:54%;
 }
-.p1c6{
-  left:55%;
+.p0c5{
+  left:57%;
 }
-.p3c1{
+.p2c0{
   top:35vh;
   left:2vw;
 }
-.p3c2{
+.p2c1{
   top:38vh; 
   left:2vw;          
 }
-.p3c3{
+.p2c2{
   top:41vh;        
   left:2vw;  
 }
-.p3c4{
+.p2c3{
   top:44vh;  
   left:2vw;      
 }
-.p3c5{
+.p2c4{
   top:47vh; 
   left:2vw;           
 }
-.p3c6{
+.p2c5{
   top:50vh;   
   left:2vw;        
 }
-.p2c1{
+.p1c0{
+  left: 42%;
+  bottom:2vh;          
+}
+.p1c1{
   left: 45%;
   bottom:2vh;          
 }
-.p2c2{
-  left: 47%;
-  bottom:2vh;          
-}
-.p2c3{
-  left: 49%;
+.p1c2{
+  left: 48%;
   bottom:2vh;         
 }
-.p2c4{
+.p1c3{
   left: 51%;
   bottom:2vh;       
 }
-.p2c5{
-  left: 53%;
+.p1c4{
+  left: 54%;
   bottom:2vh;     
 }
-.p2c6{
-  left: 55%;
+.p1c5{
+  left: 57%;
   bottom:2vh;        
 }
-.p4c1{
+.p3c0{
   top:35vh;
   right:5vw;
 }
-.p4c2{
+.p3c1{
   top:38vh;
   right:5vw;
 }
-.p4c3{
+.p3c2{
   top:41vh;
   right:5vw;
 }
-.p4c4{
+.p3c3{
   top:44vh;
   right:5vw;
 }
-.p4c5{
+.p3c4{
   top:47vh;
   right:5vw;
 }
-.p4c6{
+.p3c5{
   top:50vh;
   right:5vw;
 }
