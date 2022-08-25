@@ -12,10 +12,10 @@ let values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
 let deck = [];
 let players = [[],[],[],[]]; //all 4 player in the players array
 
-
+//gameplay variables
 //dealer order is 0=west 1=south 2=east 3=north
 var dealerOrder = ['west', 'south', 'east', 'north']
-var currentDealerIndex = 0; //west intit9al
+var currentDealerIndex = 0; //west intitial
 var currentBidderIndex = 1; //south initial
 var currentHighBid = 0;
 
@@ -23,6 +23,7 @@ function startGame(){
     createDeck();
     shuffle();
     deal();
+    sortBySuite();
     showCards();
     bid();
 }
@@ -60,10 +61,31 @@ function deal(){
         }
     }
 }
+
+function sortBySuite(){
+    let suits = ["clubs","spades","diamonds","hearts", "joker"]; //added a joker suite
+    //loop through each player
+    for(let k = 0; k < 4; k++){
+        let sortedArray = [];
+        //loop for each suite
+        for(let j = 0; j < suits.length; j++){
+            //loop through each card in their hand
+            for(let i = 0; i < 6; i++){
+                if(players[k][i].suit == suits[j]){ //dont forget about suit joker
+                    let tempCard = players[k][i];
+                    sortedArray.push(tempCard);
+                }
+            }
+        }
+        players[k] = sortedArray; //replace each players array with a sorted array
+    }
+}
+
 function showCards(){
     for(let i = 0; i < 4; i++){
         for(let j = 0; j < 6; j++){
             const newCard = document.createElement("div");
+            //for each card we adding 3 classes. ex player0, cardPlayer, p0c1
             newCard.classList.add(`player${i}`, 'cardPlayer', `p${i}c${j}`);
             document.body.appendChild(newCard);
             const pic = document.createElement("img");
@@ -115,16 +137,13 @@ function bidBtn(bidAmt){
             console.log("error");
             break;
     }
-    //setTimeout( () => {document.getElementById("score_good_guys").innerText="5";})
 }
 
+/* starts by displaying dealer and bidder on top left. in while loop we are checking our stopping conditon
+if current bidder and dealer+1 are the same then exit the loop everyone bid alread. if condition is to exit
+the loop if its the human players turn. after the onlick event executes it will return to the bid function
+and loop will continue. the CPU logic will refenernce a logic function for pitch bidding strategy */
 function bid(){
-
-    //we want to loop 4 times to allow all players to bid every game. 
-    // after the game, The dealer gits shifted right and first bidder
-
-    //define a stop and start for user input. stop the game loop if its the users turn.
-    //start the loop again after the user is don
     document.getElementById("dealerValue").innerText=dealerOrder[currentDealerIndex];
     document.getElementById("bidderValue").innerText=dealerOrder[currentBidderIndex];    
     while(currentDealerIndex+1 != currentBidderIndex){ //stopping condition is everyone has bid including dealer
@@ -132,50 +151,56 @@ function bid(){
             return;
         }
         else{
-            //this is were the CPU logic exists
-            //check if they have any aces.
-            console.log("current bidder index: " + currentBidderIndex);
-            console.log("dealerorder[currentBidderIndex]: " + dealerOrder[currentBidderIndex]);
-            console.log("player cards");
-            console.log(players[currentBidderIndex][0].value);
-            console.log(players[currentBidderIndex][1].value);
+            const bidAmount = bidLogic();
+            document.getElementById(`${dealerOrder[currentBidderIndex]}Value`).innerText=bidAmount;
         }
         currentBidderIndex = (currentBidderIndex + 1) % 4;
     }
+    
 //currentDealerIndex = (currentDealerIndex + 1) % 4; //after each game the dealer moves right
 //currentBidderIndex = (currentDealerIndex + 1) % 4; //set the first bidder after each game
-/*
-    var game = {
-        dealer:"west",
-        bidder:"south",
-        currentBid:"--",
-        us:0,
-        them:0
+}
+function bidLogic(){
+    let bidAmount = 0;
+    let suiteBidAmount = [0,0,0,0]; //init to zero each value
+    console.log("current bidder index: " + currentBidderIndex);
+    console.log("dealerorder[currentBidderIndex]: " + dealerOrder[currentBidderIndex]);
+    console.log("player cards");
+    console.log(players[currentBidderIndex][0].value);
+    console.log(players[currentBidderIndex][1].value);
+    //console.log("index of hearts: " + suits.indexOf(players[currentBidderIndex][i].suit));
+    //each rule will loop like this let first check for Aces dynamic programming we dont need 3 loops
+    //each suite
+    for(let i = 0; i < 6; i++){
+        if(players[currentBidderIndex][i].value==14) //we have an ace what suite? hears lets say
+            suiteBidAmount[suits.indexOf(players[currentBidderIndex][i].suit)] += 2;
+        if(players[currentBidderIndex][i].value==2) // we have a low
+            suiteBidAmount[suits.indexOf(players[currentBidderIndex][i].suit)] += 1.1;
+        if(players[currentBidderIndex][i].value==20){// we have a joker every suite .5 add
+            for(let j = 0; j < 4; j++)
+                suiteBidAmount[j] += .5;
+        }
+        if(players[currentBidderIndex][i].value==11){ //jack add .5 to both trump and off suite 0,1 or ,2,3
+            suiteBidAmount[suits.indexOf(players[currentBidderIndex][i].suit)] += .5;   
+        }
+        if(players[currentBidderIndex][i].value==12){ //queen add .25
+            suiteBidAmount[suits.indexOf(players[currentBidderIndex][i].suit)] += .25; 
+        }
+        if(players[currentBidderIndex][i].value==13){ //king add .25
+            suiteBidAmount[suits.indexOf(players[currentBidderIndex][i].suit)] += .25; 
+        }      
+
     }
-    var south = {
-        bidYet:false,
-        bidAmt:'-',
-        bidWon:'false'
+    console.log("suite bid amount: " + suiteBidAmount);
+    //take the ceiling of the largest number in the array
+    bidAmount= Math.max.apply(Math, suiteBidAmount);
+    bidAmount = Math.ceil(bidAmount);
+    console.log("going to bid:" + bidAmount);
+    if(currentHighBid < bidAmount){
+        currentHighBid = bidAmount
+        return bidAmount;
     }
-    var north = {
-        bidYet:false,
-        bidAmt:'-',
-        bidWon:'false'
+    else{
+        return "pass"
     }
-    var east = {
-        bidYet:false,
-        bidAmt:'-',
-        bidWon:'false'
-    }
-    var west = {
-        bidYet:false,
-        bidAmt:'-',
-        bidWon:'false'
-    }
-    var south = {
-        bidYet:false,
-        bidAmt:'-',
-        bidWon:'false'
-    }
-    */
 }

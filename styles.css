@@ -94,14 +94,18 @@
   transform: translateY(-50%);
   border: 1px solid black;
 }
-.player0, .player1{
+
+/*we need to display our cards the same as we numbered the arrays
+west = 0, south = 1, east =2 north = 3*/
+
+.player1, .player3{
   display: inline-block;
   position: absolute;
   width:11vw;
   transform: translateX(-50%);
 }
 
-.player2, .player3{
+.player0, .player2{
   display: inline-block;
   position: absolute;
   width:11vw;
@@ -124,46 +128,46 @@ html{
 img{
   max-width: 100%;
 }
-.p0c0{
+.p3c0{
   left: 42%; 
   
 }
-.p0c1{
+.p3c1{
   left:45%;
 }
-.p0c2{
+.p3c2{
   left:48%;
 }
-.p0c3{
+.p3c3{
   left:51%;
 }
-.p0c4{
+.p3c4{
   left:54%;
 }
-.p0c5{
+.p3c5{
   left:57%;
 }
-.p2c0{
+.p0c0{
   top:35vh;
   left:2vw;
 }
-.p2c1{
+.p0c1{
   top:38vh; 
   left:2vw;          
 }
-.p2c2{
+.p0c2{
   top:41vh;        
   left:2vw;  
 }
-.p2c3{
+.p0c3{
   top:44vh;  
   left:2vw;      
 }
-.p2c4{
+.p0c4{
   top:47vh; 
   left:2vw;           
 }
-.p2c5{
+.p0c5{
   top:50vh;   
   left:2vw;        
 }
@@ -191,27 +195,27 @@ img{
   left: 57%;
   bottom:2vh;        
 }
-.p3c0{
+.p2c0{
   top:35vh;
   right:5vw;
 }
-.p3c1{
+.p2c1{
   top:38vh;
   right:5vw;
 }
-.p3c2{
+.p2c2{
   top:41vh;
   right:5vw;
 }
-.p3c3{
+.p2c3{
   top:44vh;
   right:5vw;
 }
-.p3c4{
+.p2c4{
   top:47vh;
   right:5vw;
 }
-.p3c5{
+.p2c5{
   top:50vh;
   right:5vw;
 }
