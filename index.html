@@ -25,8 +25,10 @@
         <div class="gameValue" id="bidderValue">--</div>
         <div class="gameLabel">Bid</div>
         <div class="gameValue" id="bidValue">--</div>
+        <div class="gameLabel">Trump</div>
+        <div class="gameValue" id="trumpSuit">--</div>
     </div>
-    <div class="bidding">
+    <div class="bidding" id="biddingTable">
         <div class="bidLabel">West</div>
         <div class="bidLabel">South</div>
         <div class="bidLabel">East</div>
@@ -35,13 +37,26 @@
         <div class="bid" id="southValue">--</div>
         <div class="bid" id="eastValue">--</div>
         <div class="bid" id="northValue">--</div>
-        <div class="bidBtn" onclick="bidBtn('2')">2</div>
-        <div class="bidBtn" onclick="bidBtn('3')">3</div>
-        <div class="bidBtn" onclick="bidBtn('4')">4</div>
-        <div class="bidBtn" onclick="bidBtn('5')">5</div>
-        <div class="bidBtn" onclick="bidBtn('6')">6</div>
-        <div class="bidBtn passBtn" onclick="bidBtn('pass')">Pass</div>
+        <div class="bidBtn" onclick="userBid('2')">2</div>
+        <div class="bidBtn" onclick="userBid('3')">3</div>
+        <div class="bidBtn" onclick="userBid('4')">4</div>
+        <div class="bidBtn" onclick="userBid('5')">5</div>
+        <div class="bidBtn" onclick="userBid('6')">6</div>
+        <div class="bidBtn passBtn" onclick="userBid('pass')">Pass</div>
     </div>
+
+    <div id="playerSuitSelection" class="playerSuitSelection">You won the bid! select Suite<br>
+        <button onclick="suiteSelection('spades')">spades</button>
+        <button onclick="suiteSelection('clubs')">clubs</button>
+        <button onclick="suiteSelection('diamonds')">diamonds</button>
+        <button onclick="suiteSelection('hearts')">hearts</button>
+    </div>
+    <div class="computerWonBid" id="computerWonBid"></div>
+    <div class="discard" id="discard"> please choose which cards to discard<br>
+        <button onclick="reDeal()">OK</button>
+    </div>
+    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>

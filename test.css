@@ -1,8 +1,0 @@
-body{
-  color:red;
-}
-@media (max-width:800px){
-  body{
-    color: blue;
-  }
-}
