@@ -21,11 +21,6 @@ class Gameplay{
     }
 }
 
-var p0 = new Player();
-var p1 = new Player();
-var p2 = new Player();
-var p3 = new Player();
-
 //card deck
 let suits = ["clubs","spades","diamonds","hearts"];
 let values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
@@ -45,7 +40,7 @@ var currentHighBid = 0;
 var winningSuit ="";
 var winningBidder = "";
 var timer = ms => new Promise(res => setTimeout(res, ms))
-var delay = 1000;
+var delay = 300;
 var playerBidAmounts = [0,0,0,0];
 var bidCounter=0;
 var discards = [];
@@ -133,6 +128,7 @@ function bidBtnHelper(bidAmount){
     currentHighBid=Number.parseInt(bidAmount);
     winningBidder=dealerOrder[currentBidderIndex];
 }
+
 function userBid(bidAmt){
     playerBidAmounts[1] = bidAmt;
     console.log("userbidAmount: " + bidAmt);
@@ -188,8 +184,6 @@ function userBid(bidAmt){
 if current bidder and dealer+1 are the same then exit the loop everyone bid alread. if condition is to exit
 the loop if its the human players turn. after the onlick event executes it will return to the bid function
 and loop will continue. the CPU logic will refenernce a logic function for pitch bidding strategy */
-
-
 async function bid(){
     document.getElementById("dealerValue").innerText=dealerOrder[currentDealerIndex]; //display dealer
     document.getElementById("bidderValue").innerText=dealerOrder[currentBidderIndex]; //display bidder
@@ -241,7 +235,6 @@ function bidLogic(){
             suitBidAmount[suits.indexOf(players[currentBidderIndex][i].suit)] += .25; 
         }      
     }
-    console.log("bid counter: " + bidCounter);
     bidAmount= Math.max.apply(Math, suitBidAmount);
     let roundedBidAmount = Math.ceil(bidAmount); //take the ceiling of the largest number in the array to bid
     if(currentHighBid >= roundedBidAmount || roundedBidAmount < 2)//not a new high bidder or dont have a 2 bid
@@ -255,54 +248,127 @@ function bidLogic(){
     return retVal;
 }
 
-//if winningBidder=== "south") display window or buttons
-function chooseSuit(userSuit){
-    document.getElementById("biddingTable").classList.add("hidden");
-    document.getElementById("discard").classList.remove("hidden");
-    //allow the user to discard
-    let player1Cards = document.querySelectorAll(".player1");
-    for(let i = 0; i < player1Cards.length; i++){
-        player1Cards[i].addEventListener('click', () => {
-            player1Cards[i].classList.add("translateY");
-            discards.push(player1Cards[i].classList[2].toString());
-        });
-    }
-    //check if user won bid or computer
-    if(winningBidder === 'south'){
-        winningSuit = userSuit;
-        document.getElementById("trumpSuit").innerText= `${winningSuit}`;
-        document.getElementById("playerSuitSelection").classList.remove("hidden");
-    }
+function chooseSuit(){
+    document.getElementById("biddingTable").classList.add("hidden"); //hide biddingTable
+    if(winningBidder === 'south')//check if user won bid or computer
+        document.getElementById("playerSuitSelection").classList.remove("hidden"); //show playerSuitSelection
     else{
         let node = document.getElementById("computerWonBid");
         node.innerText = `${winningBidder} won the bid in  ${winningSuit} with a bid of ${currentHighBid}`;
         document.getElementById("trumpSuit").innerText= `${winningSuit}`;
-        document.getElementById("computerWonBid").classList.remove("hidden")
+        document.getElementById("computerWonBid").classList.remove("hidden") //show computer won bid and discard
+        document.getElementById("discard").classList.remove("hidden");
         discardLogic();
     }    
 }
+//called from the suit buttons onclick event
+function suiteSelection(userSuit){
+    document.getElementById("playerSuitSelection").classList.add("hidden");
+    document.getElementById("discard").classList.remove("hidden");
+    winningSuit = userSuit;
+    document.getElementById("trumpSuit").innerText= `${winningSuit}`;
+    discardLogic();
+}
+
 function discardLogic(){
-    console.log("computer discard logic");
-    let player0Cards = document.querySelectorAll(".player");
-    for(let i = 0; i < player0Cards.length; i++){
-        console.log(player0Cards.length);
+    //we need to know if player is offense or defense
+    //we want to keep all trump, offjack, joker for every player
+    //player 0 and 2 are on a team. player 1 and 3 are on a team with p1 =user
+    //dont throw out off or bug joker value =20
+    //identify off jack
+    var offJack;
+    if(winningSuit === 'hearts')
+        offJack = new Card("diamonds",11);
+    if(winningSuit === 'diamonds')
+        offJack = new Card("hearts",11);
+    if(winningSuit === 'clubs')
+        offJack = new Card("spades",11);
+    if(winningSuit === 'spades')
+        offJack = new Card("clubs",11);
+
+    let player1Cards = document.querySelectorAll(".player1");
+    for(let i = 0; i < player1Cards.length; i++){
+        player1Cards[i].addEventListener('click', () => {
+            player1Cards[i].classList.add("translateY");
+            let temp = deck.pop();
+            players[1][i] = temp;// ex p1c2  leter 1 is 1 letter 3 is 2
+        });
+    }
+
+    for(let i = 0; i < players[0].length; i++){
+        if(players[0][i].value == 20)
+            continue;
+        if(players[0][i].value == 20 || players[0][i] == offJack)
+            continue;
+        if(players[0][i].suit !== winningSuit){
+            let temp = deck.pop();
+            players[0][i] = temp;// ex p1c2  leter 1 is 1 letter 3 is 2
+        }
+    }
+    for(let i = 0; i < players[2].length; i++){
+        if(players[2][i].value == 20)
+            continue;
+        if((players[2][i].suit === offJack.suit) && (players[2][i].value === offJack.value))
+            continue;
+        if(players[2][i].suit !== winningSuit){
+            console.log(players[3][i] + " card");
+            let temp = deck.pop();
+            players[2][i] = temp;// ex p1c2  leter 1 is 1 letter 3 is 2
+        }
+    }   
+    for(let i = 0; i < players[3].length; i++){
+        if(players[3][i].value == 20)
+            continue;
+        if((players[3][i].suit === offJack.suit) && (players[3][i].value === offJack.value)){
+            continue;
+        }
+        if(players[3][i].suit !== winningSuit){
+            let temp = deck.pop();
+            players[3][i] = temp;// ex p1c2  leter 1 is 1 letter 3 is 2
+        }
     }
 }
 
 function reDeal(){
-    console.log(discards);
-    console.log(players[discards[0][1]][discards[0][3]]);
-    for(let i = 0; i < discards.length; i++){
-        //locate the card in players array, create a new card deck.pop(). re render the cards
-        //delete the element div then launch showCards()
-        let temp = deck.pop();
-        players[discards[i][1]][discards[i][3]] = temp;// ex p1c2  leter 1 is 1 letter 3 is 2
-    }
     //every card has class cardPlayer, querry them and remove them all
     let test = document.querySelectorAll('.cardPlayer');
     for(let i = 0; i < test.length; i++){
         test[i].remove();
     }
-    //re run show cards with new cards removing discards
+    sortBySuit();
     showCards();
+    document.getElementById("discard").classList.add("hidden");
+    document.getElementById("computerWonBid").classList.add("hidden");
+    playHand();
+}
+
+function playHand(){
+    //first to lead is the bidder or winner of last hand
+    //lets start with computer
+    console.log("first to bid: " + winningBidder);
+    //add click event handler transform y -40%
+    let player1Cards = document.querySelectorAll(".player1");
+    for(let i = 0; i < player1Cards.length; i++){
+        player1Cards[i].addEventListener('click', () => {
+            player1Cards[i].classList.add("translatep1Play");
+        });
+    }
+    let player0Cards = document.querySelectorAll(".player0");
+    for(let i = 0; i < player0Cards.length; i++){
+        player0Cards[i].addEventListener('click', () => {
+            player0Cards[i].classList.add("translatep0Play");
+        });
+    }
+    let player2Cards = document.querySelectorAll(".player2");
+    for(let i = 0; i < player2Cards.length; i++){
+        player2Cards[i].addEventListener('click', () => {
+            player2Cards[i].classList.add("translatep2Play");
+        });
+    }
+    let player3Cards = document.querySelectorAll(".player3");
+    for(let i = 0; i < player3Cards.length; i++){
+        player3Cards[i].addEventListener('click', () => {
+            player3Cards[i].classList.add("translatep3Play");
+        });
+    }
 }

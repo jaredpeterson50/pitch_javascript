@@ -1,3 +1,7 @@
+/*975 x 697 pc with inspect
+iphone 375 x 677  width by height
+p0cards are much bigger */
+
 .passBtn{
   grid-column: 2/5;
 }
@@ -262,3 +266,24 @@ img{
   left:70%;
   top:20%;
 }
+.translatep0Play{
+  left: 40%;
+  top: 50%;
+  /*transform: translate(0%, 0%);*/
+  transform:rotate(90deg);
+}
+.translatep1Play{
+  left: 50%;
+  top: 50%;
+}
+.translatep2Play{
+  left: 60%;
+  top: 50%;
+  /*transform: translate(0%, 0%);*/
+  transform:rotate(90deg);
+}
+.translatep3Play{
+  left: 50%;
+  top: 50%;
+}
+
