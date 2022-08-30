@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pitch</title>
     <link href="styles.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -28,6 +27,30 @@
         <div class="gameLabel">Trump</div>
         <div class="gameValue" id="trumpSuit">--</div>
     </div>
+    <div class="gameOver" id="gameEnd">
+        <div class="top"></div>
+        <div class="top">US</div>
+        <div class="top">THEM</div>
+        <div class="gameLabel">High</div>
+        <div class="gameLabel" id="highUs">--</div>
+        <div class="gameLabel" id="highThem">--</div>
+        <div class="gameLabel">Low</div>
+        <div class="gameLabel" id="lowUs">--</div>
+        <div class="gameLabel" id="lowThem">--</div>
+        <div class="gameLabel">Boss Jack</div>
+        <div class="gameLabel" id="bossUs">--</div>
+        <div class="gameLabel" id="bossThem">--</div>
+        <div class="gameLabel">Off Jack</div>
+        <div class="gameLabel" id="offUs">--</div>
+        <div class="gameLabel" id="offThem">--</div>
+        <div class="gameLabel">Bug</div>
+        <div class="gameLabel" id="bugUs">--</div>
+        <div class="gameLabel" id="bugThem">--</div>
+        <div class="gameLabel">Gew</div>
+        <div class="gameLabel" id="gewUs">--</div>
+        <div class="gameLabel" id="gewThem">--</div>
+    </div>
+
     <div class="bidding" id="biddingTable">
         <div class="bidLabel">West</div>
         <div class="bidLabel">South</div>
@@ -55,8 +78,5 @@
     <div class="discard" id="discard"> please choose which cards to discard<br>
         <button onclick="reDeal()">OK</button>
     </div>
-    
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>

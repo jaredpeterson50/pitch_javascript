@@ -1,6 +1,17 @@
 /*975 x 697 pc with inspect
 iphone 375 x 677  width by height
 p0cards are much bigger */
+/* discard, computerWonBid, playerWonBid need font adjust */
+.gameOver{
+  position: absolute;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border:1px solid black;
+  text-align: center;
+}
 
 .passBtn{
   grid-column: 2/5;
@@ -30,7 +41,6 @@ p0cards are much bigger */
 .bidLabel{
   text-align: center;
   border-bottom: 1px solid black;
-  
 
 }
 .bidding{
@@ -86,7 +96,7 @@ p0cards are much bigger */
   text-align: center;
 }
 .hidden{
-  display:none;
+  display:none !important;
 }
 .bidTable{
   display: block;
@@ -142,6 +152,16 @@ west = 0, south = 1, east =2 north = 3*/
   width:11vw;
   transform: translateX(-50%);
 }
+.player0{
+  left:-5vw;
+}
+.player1{
+  bottom:2vh;
+}
+.player2{
+  right:-3vw;
+}
+
 
 .player0, .player2{
   display: inline-block;
@@ -152,11 +172,29 @@ west = 0, south = 1, east =2 north = 3*/
 }
 
 @media (max-width:500px){
-  .player0, .player1{
+  .player0, .player2{
+    width:20vw;
+  }
+  .player1, .player3{
     width:25vw;
   }
-  .player2, .player3{
-    width:16vw;
+  .player0{
+  left:-8vw;
+}
+.player1{
+  bottom:-8vh;
+}
+.player2{
+  right:-8vw;
+}
+  .computerWonBid{
+    font-size:10px;
+  }
+  .discard{
+    font-size: 10px;
+  }
+  .playerSuitSelection{
+    font-size: 10px;
   }
 }
 
@@ -166,9 +204,62 @@ html{
 img{
   max-width: 100%;
 }
+.p0c0{
+  top:35vh;
+}
+.p0c1{
+  top:38vh;           
+}
+.p0c2{
+  top:41vh;         
+}
+.p0c3{
+  top:44vh;  
+}
+.p0c4{
+  top:47vh;          
+}
+.p0c5{
+  top:50vh;           
+}
+.p1c0{
+  left: 42%;         
+}
+.p1c1{
+  left: 45%;
+}
+.p1c2{
+  left: 48%;         
+}
+.p1c3{
+  left: 51%;       
+}
+.p1c4{
+  left: 54%;     
+}
+.p1c5{
+  left: 57%;        
+}
+.p2c0{
+  top:35vh;
+}
+.p2c1{
+  top:38vh;
+}
+.p2c2{
+  top:41vh;
+}
+.p2c3{
+  top:44vh;
+}
+.p2c4{
+  top:47vh;
+}
+.p2c5{
+  top:50vh;
+}
 .p3c0{
   left: 42%; 
-  
 }
 .p3c1{
   left:45%;
@@ -185,81 +276,9 @@ img{
 .p3c5{
   left:57%;
 }
-.p0c0{
-  top:35vh;
-  left:2vw;
-}
-.p0c1{
-  top:38vh; 
-  left:2vw;          
-}
-.p0c2{
-  top:41vh;        
-  left:2vw;  
-}
-.p0c3{
-  top:44vh;  
-  left:2vw;      
-}
-.p0c4{
-  top:47vh; 
-  left:2vw;           
-}
-.p0c5{
-  top:50vh;   
-  left:2vw;        
-}
-.p1c0{
-  left: 42%;
-  bottom:2vh;          
-}
-.p1c1{
-  left: 45%;
-  bottom:2vh;
-}
-.p1c2{
-  left: 48%;
-  bottom:2vh;         
-}
-.p1c3{
-  left: 51%;
-  bottom:2vh;       
-}
-.p1c4{
-  left: 54%;
-  bottom:2vh;     
-}
-.p1c5{
-  left: 57%;
-  bottom:2vh;        
-}
-.p2c0{
-  top:35vh;
-  right:5vw;
-}
-.p2c1{
-  top:38vh;
-  right:5vw;
-}
-.p2c2{
-  top:41vh;
-  right:5vw;
-}
-.p2c3{
-  top:44vh;
-  right:5vw;
-}
-.p2c4{
-  top:47vh;
-  right:5vw;
-}
-.p2c5{
-  top:50vh;
-  right:5vw;
-}
-
 .translateY{
   transform: translateY(-20%);
+  transition-duration: 1s;
 }
 .btn{
   position: absolute;
@@ -267,23 +286,36 @@ img{
   top:20%;
 }
 .translatep0Play{
-  left: 40%;
-  top: 50%;
-  /*transform: translate(0%, 0%);*/
-  transform:rotate(90deg);
+  transform: translateX(150%) rotate(90deg);
+  transition-duration: 1s;
 }
 .translatep1Play{
-  left: 50%;
-  top: 50%;
+  transform: translateY(-150% ) translateX(-60%);
+  transition-duration: 1s;
 }
 .translatep2Play{
-  left: 60%;
-  top: 50%;
-  /*transform: translate(0%, 0%);*/
-  transform:rotate(90deg);
+  position: absolute;
+  transform: translateX(-150%) rotate(90deg);
+  transition-duration: 1s;
 }
 .translatep3Play{
-  left: 50%;
-  top: 50%;
+  position: absolute;
+  transform: translateY(150%) translateX(-60%);
+  transition-duration: 1s;
 }
-
+.trick0{
+  transform: translateX(-700%);
+  transition-duration: 1s;
+}
+.trick1{
+  transform: translateY(700%);
+  transition-duration: 1s;
+}
+.trick2{
+  transform: translateX(700%);
+  transition-duration: 1s;
+}
+.trick3{
+  transform: translateY(-700%);
+  transition-duration: 1s;
+}
