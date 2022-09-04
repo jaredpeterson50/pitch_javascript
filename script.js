@@ -3,6 +3,7 @@ class Card{
         this.value = value;
         this.suit = suit;
     }
+    toString() { return `(${this.value}${this.suit})`; } //can use this to compare cards
 }
 
 class Game{
@@ -49,7 +50,12 @@ var playHandCounter = 0;
 var indexStartingPlayer = 1;
 var handsPlayed = 0;
 var offJack;
+var bossJack;
+var bug;
+var high;
+var low;
 var trick = [];
+var leadSuit;
 
 function startGame(){
     createDeck();
@@ -140,20 +146,6 @@ function showCards(){
             newCard.appendChild(pic);
         }
     }
-    //deal player2 backwards so the card pictures you can read the value
-    /*
-    let i = 2;
-    for(let j = 5; j >=0; j--){
-        const newCard = document.createElement("div");
-        //for each card we adding 3 classes. ex player0, cardPlayer, p0c1
-        newCard.classList.add(`player${i}`, 'cardPlayer', `p${i}c${j}`);
-        document.body.appendChild(newCard);
-        const pic = document.createElement("img");
-        const path = "img/" + game[`p${i}Cards`][j].suit + game[`p${i}Cards`][j].value + ".svg";
-        pic.src=path;
-        newCard.appendChild(pic);
-    }
-    */
 }
 
 function bidBtnHelper(bidAmount){
@@ -234,6 +226,7 @@ async function bid(){
                 trumpSuit=bidObj.suit;
                 winningBidder=dealerOrder[currentBidderIndex];
                 indexStartingPlayer=currentBidderIndex; //default is set for player1, else set here
+                console.log("trump suit: " + trumpSuit);
                 document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex]; //display bidder
             }
             //below populated bid table with each players bid
@@ -310,16 +303,27 @@ function discardLogic(){
     //we want to keep all trump, offjack, joker for every player
     //player 0 and 2 are on a team. player 1 and 3 are on a team with p1 =user
     //dont throw out off or bug joker value =20
-    //identify off jack
+    //identify off jack and boss jack
     
-    if(trumpSuit === 'hearts')
+    if(trumpSuit === 'hearts'){
         offJack = new Card("diamonds",11);
-    if(trumpSuit === 'diamonds')
+        bossJack = new Card("hearts", 10);
+    }
+        
+    if(trumpSuit === 'diamonds'){
         offJack = new Card("hearts",11);
-    if(trumpSuit === 'clubs')
+        bossJack = new Card("diamonds",11);
+    }
+    if(trumpSuit === 'clubs'){
         offJack = new Card("spades",11);
-    if(trumpSuit === 'spades')
+        bossJack = new Card("clubs",11);
+    }
+        
+    if(trumpSuit === 'spades'){
         offJack = new Card("clubs",11);
+        bossJack = new Card("spades",11);
+    }
+        
 
     let player1Cards = document.querySelectorAll(".player1");
     for(let i = 0; i < player1Cards.length; i++){
@@ -367,6 +371,8 @@ function userPlayHand(){
                 card:game.p1Cards[i],
                 node:player1Cards[i]
             }
+            if(playHandCounter==0)
+                leadSuit = obj.card.suit;
             trick.push(obj);
             indexStartingPlayer++;
             playHandCounter++
@@ -375,6 +381,92 @@ function userPlayHand(){
         });
     }
 }
+//takes in a player and a card. returns what card to play
+function whatCardToPlay(currentPlayer, currentHand){
+    console.log("what card to play");
+    console.log("current player: " + currentPlayer);
+    console.log("current hand: " + currentHand);
+    let returnIndex;
+    let largestLeadSuit = {
+        value:null,
+        index:null
+    };
+    let runJack = {
+        value:null,
+        index:null
+    };
+    let whatsLeft = {
+        value:null,
+        index:null
+    };
+
+    if(playHandCounter == 0){
+        console.log("leadsuit is null we will go trump if possbile");
+        for(let i = 0; i < game[`p${currentPlayer}Cards`].length; i++){
+            if(game[`p${currentPlayer}Cards`][i].suit == trumpSuit){
+                if(leadSuit == null)
+                    leadSuit = game[`p${currentPlayer}Cards`][i];
+                if(leadSuit.value < game[`p${currentPlayer}Cards`][i].value)
+                    leadSuit = game[`p${currentPlayer}Cards`][i];
+            }
+        }
+        //if not trump just play anything
+        if(leadSuit == null){
+            leadSuit = game[`p${currentPlayer}Cards`][0].suit;
+        }
+    }
+    console.log("leadSuit: " + leadSuit);
+    //we are going to play the 1. largest leadSuite 2.run a jack 3.anthing left
+
+    //we need to find if we have leadSuite and we need to keep everything in same array to
+    //keep the indexes valid. if we make a new array with different indexes its too much
+    //the i value is what we need to return.
+    for(let i = 0; i < game[`p${currentPlayer}Cards`].length; i++){
+        if(game[`p${currentPlayer}Cards`][i].suit == leadSuit){
+            if(largestLeadSuit == null){
+                largestLeadSuit.value = game[`p${currentPlayer}Cards`][i].value;
+                largestLeadSuit.index = i;
+            }
+                
+            if(largestLeadSuit.value < game[`p${currentPlayer}Cards`][i].value){
+                largestLeadSuit.value = game[`p${currentPlayer}Cards`][i].value;
+                largestLeadSuit.index = i;
+            }       
+        }
+    }
+    if(largestLeadSuit.value == null){
+        console.log("we dont have any leadsuit. lets run a jack");
+        for(let i = 0; i < game[`p${currentPlayer}Cards`].length; i++){
+            if(game[`p${currentPlayer}Cards`][i].toString() == bossJack.toString()){
+                runJack.value = game[`p${currentPlayer}Cards`][i];
+                runJack.index = i;
+            }
+            if(game[`p${currentPlayer}Cards`][i].toString() == offJack.toString()){
+                runJack.value = game[`p${currentPlayer}Cards`][i];
+                runJack.index = i;
+            }
+            if(game[`p${currentPlayer}Cards`][i].value == 20){
+                runJack.value = game[`p${currentPlayer}Cards`][i];
+                runJack.index = i;
+            }
+        }
+    }
+    if(runJack == null){
+        console.log("length of current players card array: " + game[`p${currentPlayer}Cards`].length);
+        whatsLeft.value = game[`p${currentPlayer}Cards`][0];
+        whatsLeft.index = 0;
+    }
+    console.log("largestLeadSuite: " + largestLeadSuit.value);
+    console.log("largestLeadSuite index: " + largestLeadSuit.index);
+    console.log("runJack: " + runJack.value);
+    console.log("runJack index: " + runJack.index);
+    console.log("whatsleft: " + whatsLeft.value);
+    console.log("whatsleft index: " + whatsLeft.index);
+    console.log("determinine index.");
+}
+    
+
+
 async function playHand(){
     let nodeCards = { //make it an object so we can use string interpolation to access the values
         player0Cards: document.querySelectorAll(".player0"),
@@ -387,11 +479,16 @@ async function playHand(){
             if(indexStartingPlayer == 1) //the user will decide what to play
                 return;
             //we need to add logic as to what cards to play
+            //this function is big enough lets call another function
+            let playIndex = whatCardToPlay(indexStartingPlayer, totalHandsPlayed);
+            //change totalhandsplayed with playIndex
             nodeCards[`player${indexStartingPlayer}Cards`][totalHandsPlayed].classList.add(`translatep${indexStartingPlayer}Play`);
             let obj = {
                 card:game[`p${indexStartingPlayer}Cards`][totalHandsPlayed],
                 node:nodeCards[`player${indexStartingPlayer}Cards`][totalHandsPlayed]
             }
+            if(playHandCounter==0) //first one to start sets the leadSuit
+                leadSuit = obj.card.suit;
             trick.push(obj);
             playHandCounter++
             indexStartingPlayer++;
@@ -408,7 +505,6 @@ async function playHand(){
 }
 //!!!!!!!!!!!!dont foget off jack and joker for trump
 function determineTrickWinner(trick){    
-    let leadSuit;
     let currentLeader;
     let currentHighCard = "";
     let suit;
