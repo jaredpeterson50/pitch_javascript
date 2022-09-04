@@ -242,21 +242,27 @@ img{
 }
 .p2c0{
   top:35vh;
+  z-index: 5;
 }
 .p2c1{
   top:38vh;
+  z-index: 4;
 }
 .p2c2{
   top:41vh;
+  z-index: 3;
 }
 .p2c3{
   top:44vh;
+  z-index: 2;
 }
 .p2c4{
   top:47vh;
+  z-index: 1;
 }
 .p2c5{
   top:50vh;
+  z-index: 0;
 }
 .p3c0{
   left: 42%; 
