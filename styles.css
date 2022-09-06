@@ -323,3 +323,9 @@ img{
 .darkenImage{
   filter:brightness(.3);
 }
+.gameOverMessage{
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+}

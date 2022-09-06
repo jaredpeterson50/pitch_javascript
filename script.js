@@ -1,3 +1,4 @@
+//we should make it so we have class variables that get wiped each hand and others that persist to the end of the game
 class Card{
     constructor(suit, value){
         this.value = value;
@@ -9,6 +10,14 @@ class Card{
 
 class Game{
     constructor(){
+        this.suits = ["clubs","spades","diamonds","hearts"];
+        this.values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
+        this.usScore = 0;
+        this.themScore = 0;
+        this.dealerOrder = ['west', 'south', 'east', 'north']
+        this.currentDealerIndex = 0; //west intitial
+        this.currentBidderIndex = 1; //south initial
+        // move these to hand remove these in a minute
         this.p0Cards = [];
         this.p1Cards = [];
         this.p2Cards = [];
@@ -16,7 +25,39 @@ class Game{
     }
 }
 
-
+class Hand{
+    constructor(){
+        this.p0Trick = [];
+        this.p1Trick = [];
+        this.p2Trick = [];
+        this.p3Trick = [];
+        this.p0Cards = [];
+        this.p1Cards = [];
+        this.p2Cards = [];
+        this.p3Cards = [];
+        this.deck = [];
+        this.discards = [];
+        this.currentHighBid = 0;
+        this.trumpSuit ="";
+        this.winningBidder = "";
+        this.playerBidAmounts = [0,0,0,0];
+        this.bidCounter=0;
+        //trick and determine winner variables
+        this.totalHandsPlayed = 0;
+        this.playHandCounter = 0;
+        this.indexStartingPlayer = 1;
+        this.handsPlayed = 0;
+        this.offJack;
+        this.bossJack;
+        this.bug;
+        this.high;
+        this.low=14; //set arbitarily high
+        this.lowPlayer;
+        this.trick = []; //needs to be global because user function and computer function use it
+        this.leadSuit;
+        this.currentHighValue;
+    }
+}
 //card deck
 var suits = ["clubs","spades","diamonds","hearts"];
 var values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
@@ -29,7 +70,11 @@ document.getElementById("discard").classList.add("hidden");
 document.getElementById("computerWonBid").classList.add("hidden");
 
 //gameplay variables
+var timer = ms => new Promise(res => setTimeout(res, ms));
+var delay = 1000;
 var game = new Game();
+var usScore = 0;
+var themScore = 0;
 var dealerOrder = ['west', 'south', 'east', 'north']
 var currentDealerIndex = 0; //west intitial
 var currentBidderIndex = 1; //south initial
@@ -37,8 +82,6 @@ document.getElementById("dealerValue").innerText=dealerOrder[currentDealerIndex]
 var currentHighBid = 0;
 var trumpSuit ="";
 var winningBidder = "";
-var timer = ms => new Promise(res => setTimeout(res, ms))
-var delay = 1000;
 var playerBidAmounts = [0,0,0,0];
 var bidCounter=0;
 var discards = [];
@@ -205,7 +248,6 @@ function userBid(bidAmt){
             break;
         case 'pass':
             document.getElementById("southValue").innerText='pass';
-            document.getElementById("bidValue").innerText='update';
             currentBidderIndex++;
             bid();
             break;
@@ -308,6 +350,8 @@ function suiteSelection(userSuit){
 }
 
 function discardLogic(){
+   
+
     //we need to know if player is offense or defense
     //we want to keep all trump, offjack, joker for every player
     //player 0 and 2 are on a team. player 1 and 3 are on a team with p1 =user
@@ -334,7 +378,10 @@ function discardLogic(){
     }
     //right here we can check if the card is 14,2,jack,off,bug of trump
     let player1Cards = document.querySelectorAll(".player1");
-    for(let i = 0; i < player1Cards.length; i++){
+    console.log("discard logic-------------------");
+    console.log(game.p1Cards);
+    console.log(player1Cards);
+    for(let i = 0; i < game.p1Cards.length; i++){
         if(canUserDiscard(game.p1Cards[i])){ // i know this is bad practice but hey...
             player1Cards[i].addEventListener('click', () => {
                 player1Cards[i].classList.add("translateY");
@@ -363,6 +410,12 @@ function discardLogic(){
     }
 }
 function canUserDiscard(argCard){
+    console.log("!!! take a look at each players cards p0 to p3");
+    console.log(game.p0Cards);
+    console.log(game.p1Cards);
+    console.log(game.p2Cards);
+    console.log(game.p3Cards);
+    console.log("argCard: " + argCard);
     //return true if we can discard
     let canDiscard = true;
     if(argCard.suit == trumpSuit && argCard.value == 14) //high
@@ -441,7 +494,7 @@ function userHandSetup(){
         player1Cards[i].classList.remove("darkenImage");
         document.removeEventListener("click", handleClick);
     }
-    if(leadSuit == null){
+    if(leadSuit == null){ //no suit to follow so all should be active to click
         for(let i = 0; i < player1Cards.length; i++)
             player1Cards[i].addEventListener('click', handleClick);
     }
@@ -453,10 +506,17 @@ function userHandSetup(){
                 hasLeadSuit=true;                
         }
         if(hasLeadSuit){
+            console.log("debug line 456 second hand");
             for(let i = 0; i < game.p1Cards.length; i++){
-                if(checkleadSuit(game.p1Cards[i]))
-                    player1Cards[i].addEventListener('click', handleClick);
+                if(checkleadSuit(game.p1Cards[i])){
+                    console.log("addeventlister its trump");
+                    console.log(player1Cards[i]);
+                    player1Cards[i].addEventListener('click', handleClick); //this is bad form
+                }
+                    
                 else{
+                    console.log("darken itsnot trump"); //bug in this
+                    console.log(player1Cards[i]);
                     player1Cards[i].classList.add("darkenImage");
                 }
             }
@@ -584,13 +644,14 @@ function whatCardToPlay(currentPlayer, currentHand){
             }
         }
     }
-   // console.log("largestLeadSuite: " + largestLeadSuit.value);
-   // console.log("largestLeadSuite index: " + largestLeadSuit.index);
-   // console.log("runJack: " + runJack.value);
-   // console.log("runJack index: " + runJack.index);
-   // console.log("whatsleft: " + whatsLeft.value);
-   // console.log("whatsleft index: " + whatsLeft.index);
-   // console.log("determinine index.");
+    console.log("what card to play!!");
+    console.log("largestLeadSuite: " + largestLeadSuit.value);
+    console.log("largestLeadSuite index: " + largestLeadSuit.index);
+    console.log("runJack: " + runJack.value);
+    console.log("runJack index: " + runJack.index);
+    console.log("whatsleft: " + whatsLeft.value);
+    console.log("whatsleft index: " + whatsLeft.index);
+    console.log("determinine index.");
 
     if(largestLeadSuit.index != null)
         return largestLeadSuit.index;
@@ -617,6 +678,10 @@ async function playHand(){
             //we need to add logic as to what cards to play
             //this function is big enough lets call another function
             let playIndex = whatCardToPlay(indexStartingPlayer, totalHandsPlayed);
+            console.log("debug line 620");
+            console.log("indexStartingPlayer: " + indexStartingPlayer + " playIndex: " + playIndex);
+            console.log("nodeCards[`player${indexStartingPlayer}Cards`][playIndex]");
+            console.log(nodeCards[`player${indexStartingPlayer}Cards`][playIndex]);
             nodeCards[`player${indexStartingPlayer}Cards`][playIndex].classList.add(`translatep${indexStartingPlayer}Play`);
             let obj = {
                 card:game[`p${indexStartingPlayer}Cards`][playIndex],
@@ -867,10 +932,6 @@ function tallyGamePoints(){
                 bugPlayer = 3;
         }
     }   
- 
-
-    let usScore = 0;
-    let themScore = 0;
     //display calulations
     if(usGew > themGew){
         document.getElementById("gewUs").innerText = 1;
@@ -926,8 +987,46 @@ function tallyGamePoints(){
         usScore += 1;
     }
     //update scoreboard
+    let indexWinningBidder = dealerOrder.indexOf(winningBidder);
+    if(indexWinningBidder == 0 || indexWinningBidder == 2){
+        if(themScore < currentHighBid){
+            document.getElementById("gameOverMessage").innerText = `bad guys got set backwards for ${currentHighBid}`;
+            themScore = currentHighBid - currentHighBid - currentHighBid;
+        }
+        else
+            document.getElementById("gameOverMessage").innerText = "bad guys won the hand";
+    }
+    else{
+        if(usScore< currentHighBid){
+            document.getElementById("gameOverMessage").innerText = `good guys got set backwards for ${currentHighBid}`;
+            console.log("us score before subtraction: " + usScore);
+            usScore = currentHighBid - currentHighBid - currentHighBid;
+            console.log("us score after subtraction: " + usScore);
+        }
+        else
+            document.getElementById("gameOverMessage").innerText = "good guys won the hand";
+    }
     document.getElementById("scoreGoodGuys").innerText = usScore;
     document.getElementById("scoreBadGuys").innerText = themScore;
+    //end of game logic
+    if(usScore > 20 || themScore > 20){ //game is over. we need to check for Staubs case bidder wins if both go out
+        if(usScore > 20 && themScore > 20){ //the bidder wins
+            if(indexWinningBidder == 1 || indexWinningBidder == 3)
+                alert("Good guys won the Game!!! STAUBS!!!");
+            else
+                alert("Bad guys won the Game!!! STAUBS!!!!!");
+        }
+        else{ //only 1 player went out print who it is
+            if(usScore > 20)
+                alert("good Guys win it again!!");
+            else  
+                alert("Bad Guys win it booooo!!");
+        }
+        //reset the usScore and themscore
+        usScore = 0;
+        themScore = 0;
+    }
+
     restartGame();
 }
 async function restartGame(){
@@ -941,13 +1040,23 @@ async function restartGame(){
     document.getElementById("bidderDirection").innerText = "--";
     document.getElementById("bidValue").innerText = "--";
     document.getElementById("trumpSuit").innerText = "--";
+    document.getElementById("gameOverMessage").innerText = "";
+    let temp = document.querySelectorAll(".gameEndVal");
+    for(let i = 0; i < temp.length; i++){
+        console.log("before: " + temp[i].innerText);
+        temp[i].innerText = "--";
+    }
     //move the dealer over, clear the bid, trump suit
     currentDealerIndex++;
     currentBidderIndex = currentDealerIndex + 1;
     if(currentBidderIndex == 4)
         currentBidderIndex = 0;
-    document.getElementById("dealerValue").innerText = dealerOrder[dealercurrentIndex];
+    document.getElementById("dealerValue").innerText = dealerOrder[currentDealerIndex];
     document.getElementById("bidderDirection").innerText = dealerOrder[currentBidderIndex];
+    document.getElementById("westValue").innerText = "--";
+    document.getElementById("eastValue").innerText = "--";
+    document.getElementById("northValue").innerText = "--";
+    document.getElementById("southValue").innerText = "--";
     //reset the global variables
     trumpSuit = null;
     currentHighBid = null;
@@ -961,6 +1070,10 @@ async function restartGame(){
     p1Trick = [];
     p2Trick = [];
     p3Trick = [];
+    game.p0Cards = [];
+    game.p1Cards = [];
+    game.p2Cards = [];
+    game.p3Cards = [];
     totalHandsPlayed = 0;
     playHandCounter = 0;
     indexStartingPlayer = currentBidderIndex;
@@ -972,7 +1085,25 @@ async function restartGame(){
     low=14; //set arbitarily high
     lowPlayer = null;
     trick = []; //needs to be global because user function and computer function use it
+    deck = [];
     leadSuit = null;
     currentHighValue = null;
+    //player0 1 2 3 4 cards are still in the dom and should be removed
+    let player0Cards = document.querySelectorAll(".player0");
+    let player1Cards = document.querySelectorAll(".player1");
+    let player2Cards = document.querySelectorAll(".player2");
+    let player3Cards = document.querySelectorAll(".player3");
+    let obj = {
+        p0:player0Cards,
+        p1:player1Cards,
+        p2:player2Cards,
+        p3:player3Cards
+    }
+    for(let j = 0; j < 4; j++){
+        for(let i = 0; i < obj[`p${j}`].length; i++){
+            console.log("removing cards should be 24");
+            obj[`p${j}`][i].remove();
+        }
+    }
     startGame();
 }
