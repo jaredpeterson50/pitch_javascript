@@ -1,4 +1,4 @@
-//we should make it so we have class variables that get wiped each hand and others that persist to the end of the game
+//card class has a value, suit, and played flag init to false
 class Card{
     constructor(suit, value){
         this.value = value;
@@ -7,24 +7,19 @@ class Card{
     }
     toString() { return `(${this.value}${this.suit})`; } //can use this to compare cards
 }
-
+//these game varables persist for the entire game, several hands
 class Game{
     constructor(){
         this.suits = ["clubs","spades","diamonds","hearts"];
         this.values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
-        this.usScore = 0;
-        this.themScore = 0;
+        this.usScoreTotal = 0; //cummunlative score
+        this.themScoreTotal = 0; //cumunlative score
         this.dealerOrder = ['west', 'south', 'east', 'north']
         this.currentDealerIndex = 0; //west intitial
         this.currentBidderIndex = 1; //south initial
-        // move these to hand remove these in a minute
-        this.p0Cards = [];
-        this.p1Cards = [];
-        this.p2Cards = [];
-        this.p3Cards = [];
     }
 }
-
+//hand variables that get reset after each hand
 class Hand{
     constructor(){
         this.p0Trick = [];
@@ -37,6 +32,9 @@ class Hand{
         this.p3Cards = [];
         this.deck = [];
         this.discards = [];
+        this.isToggledUp = [false,false,false,false,false,false];//for each card goes true on discard
+        this.usScore = 0;
+        this.themScore = 0;
         this.currentHighBid = 0;
         this.trumpSuit ="";
         this.winningBidder = "";
@@ -45,7 +43,42 @@ class Hand{
         //trick and determine winner variables
         this.totalHandsPlayed = 0;
         this.playHandCounter = 0;
-        this.indexStartingPlayer = 1;
+        this.indexCurrentPlayer = 1;
+        this.handsPlayed = 0;
+        this.offJack;
+        this.bossJack;
+        this.bug;
+        this.high;
+        this.low=14; //set arbitarily high
+        this.lowPlayer;
+        this.trick = []; //needs to be global because user function and computer function use it
+        this.leadSuit;
+        this.currentHighValue;
+    }
+    reset(){
+        console.log("reset the hand");
+        this.p0Trick = [];
+        this.p1Trick = [];
+        this.p2Trick = [];
+        this.p3Trick = [];
+        this.p0Cards = [];
+        this.p1Cards = [];
+        this.p2Cards = [];
+        this.p3Cards = [];
+        this.deck = [];
+        this.discards = [];
+        this.isToggledUp = [false,false,false,false,false,false];//for each card goes true on discard
+        this.usScore = 0;
+        this.themScore = 0;
+        this.currentHighBid = 0;
+        this.trumpSuit ="";
+        this.winningBidder = "";
+        this.playerBidAmounts = [0,0,0,0];
+        this.bidCounter=0;
+        //trick and determine winner variables
+        this.totalHandsPlayed = 0;
+        this.playHandCounter = 0;
+        this.indexCurrentPlayer = 1;
         this.handsPlayed = 0;
         this.offJack;
         this.bossJack;
@@ -58,10 +91,6 @@ class Hand{
         this.currentHighValue;
     }
 }
-//card deck
-var suits = ["clubs","spades","diamonds","hearts"];
-var values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
-var deck = [];
 
 //hide all of the prompts until later in the game when needed
 document.getElementById("gameEnd").classList.add("hidden");
@@ -69,40 +98,11 @@ document.getElementById("playerSuitSelection").classList.add("hidden"); //make s
 document.getElementById("discard").classList.add("hidden");
 document.getElementById("computerWonBid").classList.add("hidden");
 
-//gameplay variables
+let game = new Game();
+let hand = new Hand();
+
 var timer = ms => new Promise(res => setTimeout(res, ms));
 var delay = 1000;
-var game = new Game();
-var usScore = 0;
-var themScore = 0;
-var dealerOrder = ['west', 'south', 'east', 'north']
-var currentDealerIndex = 0; //west intitial
-var currentBidderIndex = 1; //south initial
-document.getElementById("dealerValue").innerText=dealerOrder[currentDealerIndex]; //display dealer
-var currentHighBid = 0;
-var trumpSuit ="";
-var winningBidder = "";
-var playerBidAmounts = [0,0,0,0];
-var bidCounter=0;
-var discards = [];
-var p0Trick = [];
-var p1Trick = [];
-var p2Trick = [];
-var p3Trick = [];
-//trick and determine winner variables
-var totalHandsPlayed = 0;
-var playHandCounter = 0;
-var indexStartingPlayer = 1;
-var handsPlayed = 0;
-var offJack;
-var bossJack;
-var bug;
-var high;
-var low=14; //set arbitarily high
-var lowPlayer;
-var trick = []; //needs to be global because user function and computer function use it
-var leadSuit;
-var currentHighValue;
 startGame();
 
 function startGame(){
@@ -117,11 +117,11 @@ function startGame(){
 //create a deck start with the joker then add the rest with loops from suits and values array
 function createDeck(){
     var joker = new Card("joker",20);
-    deck.push(joker);
-    for(let i = 0; i < suits.length; i++){
-        for(let j = 0; j < values.length; j++){
-            var newCard = new Card(suits[i],values[j]);
-            deck.push(newCard);
+    hand.deck.push(joker);
+    for(let i = 0; i < game.suits.length; i++){
+        for(let j = 0; j < game.values.length; j++){
+            var newCard = new Card(game.suits[i],game.values[j]);
+            hand.deck.push(newCard);
         }
     }
 }
@@ -132,32 +132,32 @@ function shuffle(){
     for(let i = 0; i < 1000; i++){
         let pos1 = Math.floor(Math.random()*53);
         let pos2 = Math.floor(Math.random()*53);
-        let temp = deck[pos1];
-        deck[pos1] = deck[pos2];
-        deck[pos2] = temp;
+        let temp = hand.deck[pos1];
+        hand.deck[pos1] = hand.deck[pos2];
+        hand.deck[pos2] = temp;
     }
 }
-//deal p2 cards backwards so they show value better
+
+
 function deal(){
     //players 1,2,3,4
     for(let i = 0; i < 4; i++){
         //cards 1,2,3,4,5,6
         for(let j = 0; j < 6; j++){
-            let card = deck.pop();
-            let arrayName = `p${i}Cards`;
-            game[arrayName].push(card);
+            let card = hand.deck.pop();
+            hand[`p${i}Cards`].push(card);
         }
     }
 }
-//need to sort largest to smallest as well
+//we can upgrade this by putting the trump suit in the 0 index on the redeal
 function sortBySuit(){
     let sorted = []
     let suits = ["clubs","spades","diamonds","hearts", "joker"];// dont forget the joker
     for(let k = 0; k < 4; k++){ 
         for(let i = 0; i < suits.length; i++){ 
-            for(let j = 0; j < game[`p${k}Cards`].length; j++){ 
-                if(game[`p${k}Cards`][j].suit == suits[i]){
-                    sorted.push(game[`p${k}Cards`][j]);
+            for(let j = 0; j < hand[`p${k}Cards`].length; j++){ 
+                if(hand[`p${k}Cards`][j].suit == suits[i]){
+                    sorted.push(hand[`p${k}Cards`][j]);
                 }
             }
         }
@@ -174,81 +174,70 @@ function sortBySuit(){
                 }
             }
         }
-        game[`p${k}Cards`] = sorted;
+        hand[`p${k}Cards`] = sorted;
         sorted=[]; //emtpty it for the next loop
     }
 }
-   
+//we are going to creat the divs and img elements assigning the .svg image to the corresponding card each player has
 function showCards(){
     for(let i = 0; i < 4; i++){
-        //if(i == 2) //we need to deal p2 backwards so you can see the numbers on the upper right
-        //    continue;
         for(let j = 0; j < 6; j++){
             const newCard = document.createElement("div");
             //for each card we adding 3 classes. ex player0, cardPlayer, p0c1
             newCard.classList.add(`player${i}`, 'cardPlayer', `p${i}c${j}`);
             document.body.appendChild(newCard);
             const pic = document.createElement("img");
-            const path = "img/" + game[`p${i}Cards`][j].suit + game[`p${i}Cards`][j].value + ".svg";
+            const path = "img/" + hand[`p${i}Cards`][j].suit + hand[`p${i}Cards`][j].value + ".svg";
             pic.src=path;
             newCard.appendChild(pic);
         }
     }
 }
-
-function bidBtnHelper(bidAmount){
+//prevent repetative code in the userBid switch statement
+function userBidBHelper(bidAmount){
     document.getElementById("southValue").innerText=bidAmount;
     document.getElementById("bidValue").innerText=bidAmount;
-    currentHighBid=Number.parseInt(bidAmount);
-    winningBidder=dealerOrder[currentBidderIndex];
+    hand.currentHighBid=Number.parseInt(bidAmount);
+    hand.winningBidder=game.dealerOrder[game.currentBidderIndex];
+    document.getElementById("bidderDirection").innerText=game.dealerOrder[game.currentBidderIndex];
 }
 
 function userBid(bidAmt){
-    playerBidAmounts[1] = bidAmt;
+    hand.playerBidAmounts[1] = bidAmt;
     switch(bidAmt){
         case '2':
-            if(currentHighBid < 2){
-                bidBtnHelper(bidAmt);
-                document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex];
-            }
-            currentBidderIndex++;
+            if(hand.currentHighBid < 2)
+                userBidBHelper(bidAmt);
+            game.currentBidderIndex++;
             bid();
             break;
         case '3':
-            if(currentHighBid < 3){
-                bidBtnHelper(bidAmt);
-                document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex];
-            }
-            currentBidderIndex++;
+            if(hand.currentHighBid < 3)
+                userBidBHelper(bidAmt);
+            game.currentBidderIndex++;
             bid();
             break;
         case '4':
-            if(currentHighBid < 4){
-                bidBtnHelper(bidAmt);
-                document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex];
-            }
-            currentBidderIndex++;
+            if(hand.currentHighBid < 4)
+                userBidBHelper(bidAmt);
+            game.currentBidderIndex++;
             bid();
             break;
         case '5':
-            if(currentHighBid < 5){
-                bidBtnHelper(bidAmt);
-                document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex];
-            }
-            currentBidderIndex++;
+            if(hand.currentHighBid < 5)
+                userBidBHelper(bidAmt);
+            game.currentBidderIndex++;
             bid();
             break;
         case '6':
-            if(currentHighBid < 6){
-                bidBtnHelper(bidAmt);
-                document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex];
-            }
-            currentBidderIndex++;
+            if(hand.currentHighBid < 6)
+                userBidBHelper(bidAmt);
+            game.currentBidderIndex++;
             bid();
             break;
         case 'pass':
             document.getElementById("southValue").innerText='pass';
-            currentBidderIndex++;
+            game.currentBidderIndex++;
             bid();
             break;
         default:
@@ -262,295 +251,325 @@ if current bidder and dealer+1 are the same then exit the loop everyone bid alre
 the loop if its the human players turn. after the onlick event executes it will return to the bid function
 and loop will continue. the CPU logic will refenernce a logic function for pitch bidding strategy */
 async function bid(){
-    //bidder should only update when there is a new high bidder
-    //document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex]; //display bidder
-
-    while(bidCounter < 4){
-        bidCounter++;
-        if(currentBidderIndex === 1){  //exit the loop if its the users turn to bid. then re enter function
+    while(hand.bidCounter < 4){
+        hand.bidCounter++;
+        if(game.currentBidderIndex === 1){  //exit the loop if its the users turn to bid. then re enter function
             await timer(delay);
             return;
         }
         else{
-            const bidObj = bidLogic(); //computer decides what to bid
-            if(bidObj.bid > currentHighBid){
-                currentHighBid = bidObj.bid;
-                trumpSuit=bidObj.suit;
-                winningBidder=dealerOrder[currentBidderIndex];
-                indexStartingPlayer=currentBidderIndex; //default is set for player1, else set here
-                console.log("trump suit: " + trumpSuit);
-                document.getElementById("bidderDirection").innerText=dealerOrder[currentBidderIndex]; //display bidder
+            const bidObj = cpucpuBidLogic(); //computer decides what to bid
+            if(bidObj.bid > hand.currentHighBid){
+                hand.currentHighBid = bidObj.bid;
+                hand.trumpSuit=bidObj.suit;
+                hand.winningBidder=game.dealerOrder[game.currentBidderIndex];
+                hand.indexCurrentPlayer=game.currentBidderIndex; //default is set for player1, else set here
+                console.log("trump suit: " + hand.trumpSuit);
+                document.getElementById("bidderDirection").innerText=game.dealerOrder[game.currentBidderIndex]; //display bidder
             }
             //below populated bid table with each players bid
-            document.getElementById(`${dealerOrder[currentBidderIndex]}Value`).innerText=bidObj.bid;
-            document.getElementById("bidValue").innerText=currentHighBid;
+            document.getElementById(`${game.dealerOrder[game.currentBidderIndex]}Value`).innerText=bidObj.bid;
+            document.getElementById("bidValue").innerText=hand.currentHighBid;
         }
         await timer(delay);
-        currentBidderIndex = (currentBidderIndex + 1) % 4;
+        game.currentBidderIndex++;
+        if(game.currentBidderIndex == 4) //the %4 approach seems inconsistent for some reason
+            game.currentBidderIndex=0;
     }
    chooseSuit();
 }
 
-function bidLogic(){
+function cpucpuBidLogic(){
     let bidAmount = 0;
     let suitBidAmount = [0,0,0,0]; //init to zero each value
     //go thru each card putting values of points into the suitBidAmount array
     for(let i = 0; i < 6; i++){
-        if(game[`p${currentBidderIndex}Cards`][i].value==14) //we have an ace what suite? hears lets say
-            suitBidAmount[suits.indexOf(game[`p${currentBidderIndex}Cards`][i].suit)] += 2; 
-        if(game[`p${currentBidderIndex}Cards`][i].value==2) // we have a low
-            suitBidAmount[suits.indexOf(game[`p${currentBidderIndex}Cards`][i].suit)] += 1.1;
-        if(game[`p${currentBidderIndex}Cards`][i].value==20){// we have a joker every suite .5 add
+        if(hand[`p${game.currentBidderIndex}Cards`][i].value==14) //we have an ace what suite? hears lets say
+            suitBidAmount[game.suits.indexOf(hand[`p${game.currentBidderIndex}Cards`][i].suit)] += 2; 
+        if(hand[`p${game.currentBidderIndex}Cards`][i].value==2) // we have a low
+            suitBidAmount[game.suits.indexOf(hand[`p${game.currentBidderIndex}Cards`][i].suit)] += 1.1;
+        if(hand[`p${game.currentBidderIndex}Cards`][i].value==20){// we have a joker every suite .5 add
             for(let j = 0; j < 4; j++)
                 suitBidAmount[j] += .5;
         }
-        if(game[`p${currentBidderIndex}Cards`][i].value==11){ //jack add .5 to both trump and off suite 0,1 or ,2,3
-            suitBidAmount[suits.indexOf(game[`p${currentBidderIndex}Cards`][i].suit)] += .5;   
+        if(hand[`p${game.currentBidderIndex}Cards`][i].value==11){ //jack add .5 to both trump and off suite 0,1 or ,2,3
+            suitBidAmount[game.suits.indexOf(hand[`p${game.currentBidderIndex}Cards`][i].suit)] += .5;   
         }
-        if(game[`p${currentBidderIndex}Cards`][i].value==12){ //queen add .25
-            suitBidAmount[suits.indexOf(game[`p${currentBidderIndex}Cards`][i].suit)] += .25; 
+        if(hand[`p${game.currentBidderIndex}Cards`][i].value==12){ //queen add .25
+            suitBidAmount[game.suits.indexOf(hand[`p${game.currentBidderIndex}Cards`][i].suit)] += .25; 
         }
-        if(game[`p${currentBidderIndex}Cards`][i].value==13){ //king add .25
-            suitBidAmount[suits.indexOf(game[`p${currentBidderIndex}Cards`][i].suit)] += .25; 
+        if(hand[`p${game.currentBidderIndex}Cards`][i].value==13){ //king add .25
+            suitBidAmount[game.suits.indexOf(hand[`p${game.currentBidderIndex}Cards`][i].suit)] += .25; 
         }      
     }
     bidAmount= Math.max.apply(Math, suitBidAmount);
     let roundedBidAmount = Math.ceil(bidAmount); //take the ceiling of the largest number in the array to bid
-    if(currentHighBid >= roundedBidAmount || roundedBidAmount < 2)//not a new high bidder or dont have a 2 bid
+    if(hand.currentHighBid >= roundedBidAmount || roundedBidAmount < 2)//not a new high bidder or dont have a 2 bid
         roundedBidAmount="pass";
-    if(currentHighBid < 2 && bidCounter == 3) //if your the last bidder you need to bid 2 and dont over bid
+    if(hand.currentHighBid < 2 && hand.bidCounter == 3) //if your the last bidder you need to bid 2 and dont over bid
         roundedBidAmount=2;
     const retVal = {
         bid: roundedBidAmount,
-        suit: suits[suitBidAmount.indexOf(bidAmount)]
+        suit: game.suits[suitBidAmount.indexOf(bidAmount)]
     }
     return retVal;
 }
 
 function chooseSuit(){
     document.getElementById("biddingTable").classList.add("hidden"); //hide biddingTable
-    if(winningBidder === 'south')//check if user won bid or computer
+    if(hand.winningBidder === 'south')//check if user won bid or computer
         document.getElementById("playerSuitSelection").classList.remove("hidden"); //show playerSuitSelection
     else{
         let node = document.getElementById("computerWonBid");
-        node.innerText = `${winningBidder} won the bid in  ${trumpSuit} with a bid of ${currentHighBid}`;
-        document.getElementById("trumpSuit").innerText= `${trumpSuit}`;
+        node.innerText = `${hand.winningBidder} won the bid in  ${hand.trumpSuit} with a bid of ${hand.currentHighBid}`;
+        document.getElementById("trumpSuit").innerText= `${hand.trumpSuit}`;
         document.getElementById("computerWonBid").classList.remove("hidden") //show computer won bid and discard
         document.getElementById("discard").classList.remove("hidden");
         discardLogic();
     }    
 }
-//called from the suit buttons onclick event
+//called from the suit buttons onclick event from index.html
 function suiteSelection(userSuit){
     document.getElementById("playerSuitSelection").classList.add("hidden");
     document.getElementById("discard").classList.remove("hidden");
-    trumpSuit = userSuit;
-    document.getElementById("trumpSuit").innerText= `${trumpSuit}`;
+    hand.trumpSuit = userSuit;
+    document.getElementById("trumpSuit").innerText= `${hand.trumpSuit}`;
     discardLogic();
 }
-
-function discardLogic(){
-   
-
-    //we need to know if player is offense or defense
-    //we want to keep all trump, offjack, joker for every player
-    //player 0 and 2 are on a team. player 1 and 3 are on a team with p1 =user
-    //dont throw out off or bug joker value =20
-    //identify off jack and boss jack
-    
-    if(trumpSuit === 'hearts'){
-        offJack = new Card("diamonds",11);
-        bossJack = new Card("hearts", 10);
-    }
-        
-    if(trumpSuit === 'diamonds'){
-        offJack = new Card("hearts",11);
-        bossJack = new Card("diamonds",11);
-    }
-    if(trumpSuit === 'clubs'){
-        offJack = new Card("spades",11);
-        bossJack = new Card("clubs",11);
-    }
-
-    if(trumpSuit === 'spades'){
-        offJack = new Card("clubs",11);
-        bossJack = new Card("spades",11);
-    }
-    //right here we can check if the card is 14,2,jack,off,bug of trump
+//for the user to click what cards to discard. the toggleCards up is to discard but can be clicked again to put back
+function toggleCardsUp(){
     let player1Cards = document.querySelectorAll(".player1");
-    console.log("discard logic-------------------");
-    console.log(game.p1Cards);
-    console.log(player1Cards);
-    for(let i = 0; i < game.p1Cards.length; i++){
-        if(canUserDiscard(game.p1Cards[i])){ // i know this is bad practice but hey...
-            player1Cards[i].addEventListener('click', () => {
+    for(let i = 0; i < hand.p1Cards.length; i++){
+        if(canUserDiscard(hand.p1Cards[i])){//we are mixing the i values of different arrays but i dont know how else
+            if(hand.isToggledUp[i] == false){
+                player1Cards[i].addEventListener('click', () => {
                 player1Cards[i].classList.add("translateY");
-                let temp = deck.pop();
-                game.p1Cards[i] = temp;
-            });
+                hand.isToggledUp[i] = true;
+                toggleCardsDown();
+                }); 
+            }
         }
-        else{
-            player1Cards[i].classList.add("darkenImage");
-        }
-        
+        else
+            player1Cards[i].classList.add("darkenImage");        
     }
-    for(let j = 0; j < 4; j++){ //4 players total
-        if(j ==1) //dont automate player 1 discard
-            continue;
-        for(let i = 0; i < game[`p${j}Cards`].length; i++){
-            if(game[`p${j}Cards`][i].value == 20)
-                continue;
-            if((game[`p${j}Cards`][i].suit == offJack.suit) && (game[`p${j}Cards`][i].value == offJack.value))
-                continue;
-            if(game[`p${j}Cards`][i].suit !== trumpSuit){
-                let temp = deck.pop();
-                game[`p${j}Cards`][i] = temp;
+}
+//undoes what toggleCardsUp does and puts the card back in the users hand
+function toggleCardsDown(){
+    let player1Cards = document.querySelectorAll(".player1");
+    for(let i = 0; i < hand.p1Cards.length; i++){
+        if(canUserDiscard(hand.p1Cards[i])){//we are mixing the i values of different arrays but i dont know how else
+            if(hand.isToggledUp[i] == true){
+                player1Cards[i].addEventListener('click', () => {
+                player1Cards[i].classList.remove("translateY");
+                hand.isToggledUp[i] = false;
+                toggleCardsUp();
+                }); 
             }
         }
     }
 }
+
+function discardLogic(){
+    if(hand.trumpSuit === 'hearts'){
+        hand.offJack = new Card("diamonds",11);
+        hand.bossJack = new Card("hearts", 10);
+    }   
+    if(hand.trumpSuit === 'diamonds'){
+        hand.offJack = new Card("hearts",11);
+        hand.bossJack = new Card("diamonds",11);
+    }
+    if(hand.trumpSuit === 'clubs'){
+        hand.offJack = new Card("spades",11);
+        hand.bossJack = new Card("clubs",11);
+    }
+    if(hand.trumpSuit === 'spades'){
+        hand.offJack = new Card("clubs",11);
+        hand.bossJack = new Card("spades",11);
+    }
+    toggleCardsUp();//this allows the user to discard what they want
+    for(let j = 0; j < 4; j++){ //4 players total
+        if(j ==1) //dont automate player 1 discard
+            continue;
+        //for the computer we want them to keep any jacks,bug, or trump suit they are delt
+        for(let i = 0; i < hand[`p${j}Cards`].length; i++){
+            if(hand[`p${j}Cards`][i].value == 20) //joker
+                continue;
+            if((hand[`p${j}Cards`][i].suit == hand.offJack.suit) && (hand[`p${j}Cards`][i].value == hand.offJack.value))
+                continue;
+            if(hand[`p${j}Cards`][i].suit !== hand.trumpSuit){
+                let temp = hand.deck.pop();
+                hand[`p${j}Cards`][i] = temp;
+            }
+        }
+    }
+}
+//return true if we can discard cant get ride of jacks,high,low,bug
 function canUserDiscard(argCard){
-    console.log("!!! take a look at each players cards p0 to p3");
-    console.log(game.p0Cards);
-    console.log(game.p1Cards);
-    console.log(game.p2Cards);
-    console.log(game.p3Cards);
-    console.log("argCard: " + argCard);
-    //return true if we can discard
     let canDiscard = true;
-    if(argCard.suit == trumpSuit && argCard.value == 14) //high
+    if(argCard.suit == hand.trumpSuit && argCard.value == 14) //high
         canDiscard = false;
-    if(argCard.suit == trumpSuit && argCard.value == 2) //low
+    if(argCard.suit == hand.trumpSuit && argCard.value == 2) //low
         canDiscard = false;
-    if(argCard.toString() == bossJack.toString()) //bossJack
+    if(argCard.toString() == hand.bossJack.toString()) //bossJack
         canDiscard = false;
-    if(argCard.toString() == offJack.toString()) //offJack
+    if(argCard.toString() == hand.offJack.toString()) //offJack
         canDiscard = false;
     if(argCard.value == 20)
         canDiscard = false;
     return canDiscard;
 }
+//this entrance to this function is from the done discarding button on index.html onclick event
 function reDeal(){
-    //every card has class cardPlayer, querry them and remove them all
-    let test = document.querySelectorAll('.cardPlayer');
-    for(let i = 0; i < test.length; i++){
-        test[i].remove();
+    //this is where we exit the discard toggling.
+    //real quick we want to pop some cards off the deck and replace the ones that are flagged true in toggledup
+    for(let i = 0; i < hand.isToggledUp.length; i++){
+        if(hand.isToggledUp[i] == true){
+            let temp = hand.deck.pop();
+            hand.p1Cards[i] = temp;
+        }
     }
+    //remove all cards from the DOM we will deal every card again in showCards
+    let allCards = document.querySelectorAll('.cardPlayer');
+    for(let i = 0; i < allCards.length; i++)
+        allCards[i].remove();
     sortBySuit();
     showCards();
     document.getElementById("discard").classList.add("hidden");
     document.getElementById("computerWonBid").classList.add("hidden");
     findLow();
+    findOffBug();
     playHand();
 }
-//need to determine who holds the low before hands get played
+
+//to find the joker we look for a value of 20. if we do we can change the value to 10.8 and suit=trumpsuit
+//to find the offJack we look for offsuit and change value to 10.9. bossjack = 11 these are just below
+function findOffBug(){
+    let offSuit;
+    let jokerFound = false;
+    let offJackFound = false;
+    if(hand.trumpSuit === 'clubs')
+        offSuit = "spades";
+    if(hand.trumpSuit === 'spades')
+        offSuit = "clubs";
+    if(hand.trumpSuit === 'hearts')
+        offSuit = "diamonds";
+    if(hand.trumpSuit === 'diamonds')
+        offSuit = "hearts";
+    for(let i = 0; i < 4; i++){
+        for(let j = 0; j < hand[`p${i}Cards`].length; j++){
+            if(hand[`p${i}Cards`][j].value == 20){
+                hand[`p${i}Cards`][j].value = 10.8;
+                hand[`p${i}Cards`][j].suit = hand.trumpSuit;
+            }
+            if(hand[`p${i}Cards`][j].value == 11 && hand[`p${i}Cards`][j].suit == offSuit){
+                hand[`p${i}Cards`][j].suit = hand.trumpSuit;
+                hand[`p${i}Cards`][j].value = 10.9;
+            }
+        }
+    }
+}
+//need to determine who holds the low before hands get played, you keep the low even if you lose the trick
 function findLow(){
     let counter = 0;
     for(let j = 0; j < 4; j++){
-        for(let i = 0; i < game[`p${j}Cards`].length; i++){
-            if(game[`p${j}Cards`][i].suit == trumpSuit){
-                if(game[`p${j}Cards`][i].value < low){
-                    low = game[`p${j}Cards`][i].value;
-                    lowPlayer = j;
+        for(let i = 0; i < hand[`p${j}Cards`].length; i++){
+            if(hand[`p${j}Cards`][i].suit == hand.trumpSuit){
+                if(hand[`p${j}Cards`][i].value < hand.low){
+                    hand.low = hand[`p${j}Cards`][i].value;
+                    hand.lowPlayer = j;
                 }
             }
         }
     }
 }
-
+//this function is called when the user clicks a card playing it.
 async function handleClick(){
     let i = this.classList[2][3];
     player1Cards[i].classList.add("translatep1Play");
     let obj = {
-        card:game.p1Cards[i],
+        card:hand.p1Cards[i],
         node:player1Cards[i]
     }
-    if(playHandCounter==0)
-        leadSuit = obj.card.suit;
-    game.p1Cards[i].played = true;
-    console.log(`player# 1 making null values:`  + obj.card.toString());
-    trick.push(obj);
-    indexStartingPlayer++;
-    playHandCounter++
+    if(hand.playHandCounter==0)
+        hand.leadSuit = obj.card.suit;
+    hand.p1Cards[i].played = true;
+    console.log("player# 1: "  + obj.card.toString());
+    hand.trick.push(obj);
+    hand.indexCurrentPlayer++;
+    hand.playHandCounter++
     await timer(delay);
     playHand();
 }
-//i do need to flag played cards
+
+//checks if the card passed in is leadsuit including jack,bug and hasn't been played yet.
 function checkleadSuit(argCard){
-    //we need to check if suit == leadSuit and that it hasn't been played or if its off or bug
     let isLeadSuit = false;
-    if(argCard.suit == leadSuit && argCard.played == false)
+    if(argCard.suit == hand.leadSuit && argCard.played == false)
         isLeadSuit = true;
-    if(argCard.toString() == offJack.toString() && argCard.played == false)
+    if(argCard.toString() == hand.offJack.toString() && argCard.played == false)
         isLeadSuit = true;
     if(argCard.value == 20 && argCard.played == false)
         isLeadSuit = true;
     return isLeadSuit;
 }
+//this function adds click event listeners to the cards that can be played. darkens the cards that are invalid plays
+//you have to follow suit of what is led if you have it. otherwise play anything.
 function userHandSetup(){
-    console.log("leadsuit: " + leadSuit);
+    console.log("leadsuit: " + hand.leadSuit);
     player1Cards = document.querySelectorAll(".player1");
+    //before we start remove all old CSS event click listeners and darkenImage
     for(let i = 0; i < player1Cards.length; i++){
         player1Cards[i].classList.remove("darkenImage");
-        document.removeEventListener("click", handleClick);
+        player1Cards[i].removeEventListener("click", handleClick);
     }
-    if(leadSuit == null){ //no suit to follow so all should be active to click
+    //no suit to follow so all should be active to click
+    if(hand.leadSuit == null){ 
         for(let i = 0; i < player1Cards.length; i++)
             player1Cards[i].addEventListener('click', handleClick);
     }
     else{//in here we know leadsuit is already set so we need to look for leadsuit cards
+        //if there isn't any then all cards can be clickable with no darkening
         let hasLeadSuit = false;
-        //search the cards array for leadsuit cards that haven't been played.
-        for(let i = 0; i < game.p1Cards.length; i++){
-            if(checkleadSuit(game.p1Cards[i])) //
-                hasLeadSuit=true;                
+        for(let i = 0; i < hand.p1Cards.length; i++){
+            if(hand.p1Cards[i].suit == hand.leadSuit && hand.p1Cards[i].played == false)
+                hasLeadSuit=true;    
         }
+        //we know we have some cards that are of the suit led. add eventlisters to those and darken others
         if(hasLeadSuit){
-            console.log("debug line 456 second hand");
-            for(let i = 0; i < game.p1Cards.length; i++){
-                if(checkleadSuit(game.p1Cards[i])){
-                    console.log("addeventlister its trump");
-                    console.log(player1Cards[i]);
-                    player1Cards[i].addEventListener('click', handleClick); //this is bad form
-                }
-                    
-                else{
-                    console.log("darken itsnot trump"); //bug in this
-                    console.log(player1Cards[i]);
+            for(let i = 0; i < hand.p1Cards.length; i++){
+                if(hand.p1Cards[i].played == false && hand.p1Cards[i].suit == hand.leadSuit )
+                    player1Cards[i].addEventListener('click', handleClick); //this is bad form but both arrays are 6 length
+                else
                     player1Cards[i].classList.add("darkenImage");
-                }
             }
         }
         else{ //we have no leadSuit, every card is free game and doesn't need any darkening
-            for(let i = 0; i < player1Cards.length; i++){
+            for(let i = 0; i < player1Cards.length; i++)
                 player1Cards[i].addEventListener('click', handleClick);
-            }
         }
     }
 }
 
-
-//takes in a player and a card. returns what card to play
+//takes in a card. returns true if its tump and hasn't been played
 function checkTrump(argCard){
-    console.log("istrumporPlayed")
-    console.log(argCard);
-    let isTrump = false; //make it true
-    console.log(argCard.suit);
-    console.log(trumpSuit);
-    console.log(argCard.played);
-    if(argCard.suit == trumpSuit && argCard.played == false)
+    let isTrump = false; 
+    if(argCard.suit == hand.trumpSuit && argCard.played == false)
         isTrump = true;
-    if(argCard.toString() == offJack.toString() && argCard.played == false)
+    if(argCard.toString() == hand.offJack.toString() && argCard.played == false)
         isTrump = true;
     if(argCard.value == 20 && argCard.played == false)
         isTrump = true;
-    console.log("value of isTrump: " + isTrump);
     return isTrump;
 }
-function whatCardToPlay(currentPlayer, currentHand){
+//returns what card the computer should play. We need to add more fules but to start
+//1. play largest of what suit is led. 2. if you dont have a card in the lead suit run a jack.
+// if not one of first 2 play the first valid card in your hand
+function whatCardToPlayCPU(currentPlayer, currentHand){
     console.log("what card to play");
     console.log("current player: " + currentPlayer);
     console.log("current hand: " + currentHand);
+    console.log("playhandcounter: " + hand.playHandCounter);
+    //console.log("card: " + hand[`p${currentPlayer}Cards`][])
     let largestLeadSuit = {
         value:null,
         index:null
@@ -563,28 +582,27 @@ function whatCardToPlay(currentPlayer, currentHand){
         value:null,
         index:null
     };
-    if(playHandCounter == 0){ //computer is the leader and should try to play largest trump
-        for(let i = 0; i < game[`p${currentPlayer}Cards`].length; i++){
-            if(checkTrump(game[`p${currentPlayer}Cards`][i])){
-                if(leadSuit == null){//first trump card identified
-                    leadSuit = game[`p${currentPlayer}Cards`][i].suit;
-                    largestLeadSuit.value = game[`p${currentPlayer}Cards`][i].value;
+    if(hand.playHandCounter == 0){ //computer is the leader and should try to play largest trump
+        for(let i = 0; i < hand[`p${currentPlayer}Cards`].length; i++){
+            if(checkTrump(hand[`p${currentPlayer}Cards`][i])){
+                if(hand.leadSuit == null){//first trump card identified
+                    hand.leadSuit = hand[`p${currentPlayer}Cards`][i].suit;
+                    largestLeadSuit.value = hand[`p${currentPlayer}Cards`][i].value;
                     largestLeadSuit.index = i;
                 }
-                if(largestLeadSuit.value < game[`p${currentPlayer}Cards`][i].value){ //there is another trump find largest
-                    leadSuit = game[`p${currentPlayer}Cards`][i].suit;
-                    largestLeadSuit.value = game[`p${currentPlayer}Cards`][i].value;
+                if(largestLeadSuit.value < hand[`p${currentPlayer}Cards`][i].value){ //there is another trump find largest
+                    hand.leadSuit = hand[`p${currentPlayer}Cards`][i].suit;
+                    largestLeadSuit.value = hand[`p${currentPlayer}Cards`][i].value;
                     largestLeadSuit.index = i;
                 }
             }
         }
         //if not trump just play anything
-        if(leadSuit == null){
-            for(let i = 0 ; i < game[`p${currentPlayer}Cards`].length; i++){
-                //if(game[`p${currentPlayer}Cards`][i].value != null)
-                if(game[`p${currentPlayer}Cards`][i].played == false){ //its avaiable
-                    leadsuit = game[`p${currentPlayer}Cards`][i].suit;
-                    whatsLeft.value = game[`p${currentPlayer}Cards`][i].value;
+        if(hand.leadSuit == null){
+            for(let i = 0 ; i < hand[`p${currentPlayer}Cards`].length; i++){
+                if(hand[`p${currentPlayer}Cards`][i].played == false){ //its avaiable
+                    hand.leadsuit = hand[`p${currentPlayer}Cards`][i].suit;
+                    whatsLeft.value = hand[`p${currentPlayer}Cards`][i].value;
                     whatsLeft.index = i;
                 }
             }
@@ -594,52 +612,44 @@ function whatCardToPlay(currentPlayer, currentHand){
             return largestLeadSuit.index;
         return whatsLeft.index;
     }
-    
-    
-    console.log("leadSuit: " + leadSuit);
-    //we are going to play the 1. largest leadSuite 2.run a jack 3.anthing left
-    //we need to find if we have leadSuite and we need to keep everything in same array to
-    //keep the indexes valid. if we make a new array with different indexes its too much
-    //the i value is what we need to return.
-    for(let i = 0; i < game[`p${currentPlayer}Cards`].length; i++){
-        if(checkTrump(game[`p${currentPlayer}Cards`][i])){
-        //if(game[`p${currentPlayer}Cards`][i].suit == leadSuit && game[`p${currentPlayer}Cards`][i].played == false){
+    console.log("leadSuit: " + hand.leadSuit);
+    for(let i = 0; i < hand[`p${currentPlayer}Cards`].length; i++){
+        if(checkTrump(hand[`p${currentPlayer}Cards`][i])){
+            console.log("checkTrump returned true");
             if(largestLeadSuit == null){
-                largestLeadSuit.value = game[`p${currentPlayer}Cards`][i].value;
+                largestLeadSuit.value = hand[`p${currentPlayer}Cards`][i].value;
                 largestLeadSuit.index = i;
             }
-            if(largestLeadSuit.value < game[`p${currentPlayer}Cards`][i].value){
-                largestLeadSuit.value = game[`p${currentPlayer}Cards`][i].value;
+            if(largestLeadSuit.value < hand[`p${currentPlayer}Cards`][i].value){
+                largestLeadSuit.value = hand[`p${currentPlayer}Cards`][i].value;
                 largestLeadSuit.index = i;
             }       
         }
     }
     if(largestLeadSuit.value == null){
        console.log("we dont have any leadsuit. lets run a jack");
-        for(let i = 0; i < game[`p${currentPlayer}Cards`].length; i++){
-            if(game[`p${currentPlayer}Cards`][i].toString() == bossJack.toString() && game[`p${currentPlayer}Cards`][i].played == false){
-                runJack.value = game[`p${currentPlayer}Cards`][i];
+        for(let i = 0; i < hand[`p${currentPlayer}Cards`].length; i++){
+            if(hand[`p${currentPlayer}Cards`][i].toString() == hand.bossJack.toString() && hand[`p${currentPlayer}Cards`][i].played == false){
+                runJack.value = hand[`p${currentPlayer}Cards`][i];
                 runJack.index = i;
             }
-            if(game[`p${currentPlayer}Cards`][i].toString() == offJack.toString() && game[`p${currentPlayer}Cards`][i].played == false){
-                runJack.value = game[`p${currentPlayer}Cards`][i];
+            if(hand[`p${currentPlayer}Cards`][i].toString() == hand.offJack.toString() && hand[`p${currentPlayer}Cards`][i].played == false){
+                runJack.value = hand[`p${currentPlayer}Cards`][i];
                 runJack.index = i;
             }
-            if(game[`p${currentPlayer}Cards`][i].value == 20 && game[`p${currentPlayer}Cards`][i].played == false){
-                runJack.value = game[`p${currentPlayer}Cards`][i];
+            if(hand[`p${currentPlayer}Cards`][i].value == 20 && hand[`p${currentPlayer}Cards`][i].played == false){
+                runJack.value = hand[`p${currentPlayer}Cards`][i];
                 runJack.index = i;
             }
         }
     }
-    if(runJack.value == null){
-        console.log("dont have whats led or a jack to run, in whatsleft");
-        //make sure we find something that isn't null those cards have already been played
-        for(let i = 0; i < game[`p${currentPlayer}Cards`].length; i++){
-         //   console.log("in whats left loop")
-          //  console.log(game[`p${currentPlayer}Cards`][i].value);
-            //if(game[`p${currentPlayer}Cards`][i].value != null){
-            if(game[`p${currentPlayer}Cards`][i].played == false){
-                whatsLeft.value = game[`p${currentPlayer}Cards`][i];
+    //dont have leadsuit or a jack to run. populate whatleft with any valid cards to play.
+    //will overwrite values till the loop finishes.
+    if(runJack.value == null && largestLeadSuit.value == null){
+        console.log("dont have either leadsuit or a jack to run, in whatsleft.");
+        for(let i = 0; i < hand[`p${currentPlayer}Cards`].length; i++){
+            if(hand[`p${currentPlayer}Cards`][i].played == false){
+                whatsLeft.value = hand[`p${currentPlayer}Cards`][i];
                 whatsLeft.index = i;
             }
         }
@@ -660,7 +670,7 @@ function whatCardToPlay(currentPlayer, currentHand){
     return whatsLeft.index;
 }
     
-//we need to have the computer play the offjack and bug as trump. the shaded and click should be open for these
+
 async function playHand(){
     let nodeCards = { //make it an object so we can use string interpolation to access the values
         player0Cards: document.querySelectorAll(".player0"),
@@ -668,60 +678,50 @@ async function playHand(){
         player2Cards: document.querySelectorAll(".player2"),
         player3Cards: document.querySelectorAll(".player3"),
     }
-    while(totalHandsPlayed < 6){
-        while(playHandCounter < 4){
-            if(indexStartingPlayer == 1){ //the user will decide what to play
-                //this is a time we can call a helper function to set what cards darken and are clickable
+    while(hand.totalHandsPlayed < 6){ //we are going to play 6 hands 
+        while(hand.playHandCounter < 4){ //ever hand 4 cards get played
+            console.log("hand.indexCurrentPlayer: " + hand.indexCurrentPlayer);
+            if(hand.indexCurrentPlayer == 1){//call userHandSetup to allow user to play valid cards
                 userHandSetup();
                 return;
             }
-            //we need to add logic as to what cards to play
-            //this function is big enough lets call another function
-            let playIndex = whatCardToPlay(indexStartingPlayer, totalHandsPlayed);
-            console.log("debug line 620");
-            console.log("indexStartingPlayer: " + indexStartingPlayer + " playIndex: " + playIndex);
-            console.log("nodeCards[`player${indexStartingPlayer}Cards`][playIndex]");
-            console.log(nodeCards[`player${indexStartingPlayer}Cards`][playIndex]);
-            nodeCards[`player${indexStartingPlayer}Cards`][playIndex].classList.add(`translatep${indexStartingPlayer}Play`);
+            //call whatCardToPlayCPU to make the logic its own function. lots of code to determine what to play
+            //playIndex is the index of the card the computer player should play 
+            let playIndex = whatCardToPlayCPU(hand.indexCurrentPlayer, hand.totalHandsPlayed);
+            //we have 2D arrays in hand[][] and nodeCards[][] hand is the Card nodeCards is the Html
+            nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex].classList.add(`translatep${hand.indexCurrentPlayer}Play`);
             let obj = {
-                card:game[`p${indexStartingPlayer}Cards`][playIndex],
-                node:nodeCards[`player${indexStartingPlayer}Cards`][playIndex]
+                card:hand[`p${hand.indexCurrentPlayer}Cards`][playIndex],
+                node:nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex]
             }
-            if(playHandCounter==0) //first one to start sets the leadSuit
-                leadSuit = obj.card.suit;
-            if(playIndex != null){
-                //mark the values as played
-                console.log(`player# ${indexStartingPlayer} making null values:`  + game[`p${indexStartingPlayer}Cards`][playIndex]);
-                game[`p${indexStartingPlayer}Cards`][playIndex].played = true;
-            }
-            trick.push(obj);
-            playHandCounter++
-            indexStartingPlayer++;
-            if(indexStartingPlayer == 4) //for some reason when i did indexstatingpalyer %4 it was inconsistent
-                indexStartingPlayer=0;
+            if(hand.playHandCounter==0) //first one to play start sets the leadSuit
+                hand.leadSuit = obj.card.suit;
+            hand[`p${hand.indexCurrentPlayer}Cards`][playIndex].played = true; //mark the Card as played
+            console.log(`player# ${hand.indexCurrentPlayer} card: `  + hand[`p${hand.indexCurrentPlayer}Cards`][playIndex]);
+            hand.trick.push(obj);
+            hand.playHandCounter++
+            hand.indexCurrentPlayer++;
+            if(hand.indexCurrentPlayer == 4) //for some reason when i did indexstatingpalyer %4 it was inconsistent
+                hand.indexCurrentPlayer=0;
             await timer(delay);
         }
-        playHandCounter = 0;
-        indexStartingPlayer = determineTrickWinner(trick);    
-        console.log("retured from determine Trick indexStartingPlayer: " + indexStartingPlayer);
-        totalHandsPlayed++;
+        hand.playHandCounter = 0; //Do we need this?????????
+        hand.indexCurrentPlayer = determineTrickWinner(hand.trick);//the winner or the hand will leadout on the next  
+        //console.log("retured from determine Trick indexCurrentPlayer: " + hand.indexCurrentPlayer);
+        hand.totalHandsPlayed++;
     }
 }
 
-//pass in trick that contains cards and nodes of the cards played. function needs to figure out who won
-//they are all getting null values. I need to have a flag i can set to say played
+//passed in is an array of cards and assosiated nodes to track who played what. function determines what player won
+//pushes the cards into the correct players trick array for counting up points at the end of the hand.
+//this function returns the index of the winning plaer for this trick.
 function determineTrickWinner(trickArg){
-    /*
-    tump = diamonds first player starts ace clubs. second player runs off jack, third plays clubs, four plays 3 hearts.
-    winner is second player running off jack is trump and no higher trump in this hand
-    */
-    
     console.log("trick");
-    let currentLeader; //player index
-    let startingSuitHighValue = "";
-    let startingSuit;
-    let trumpingInSuit = null; //someone can trump in and not be in starting suit
-    let trumpingInHighValue = null; //we need to know the value 2 players can trump in
+    let currentLeader; //player index who is winning the trick thus far
+    let startingSuitHighValue = ""; //highest value played so far of suit the was led out
+    let startingSuit; //suit of the first card played
+    let trumpingInSuit = null; //someone can trump in if they dont have the led suit
+    let trumpingInHighValue = null; //highest value of trumped in played thus far, more than 1 person can trump in
     for(let i = 0; i < trickArg.length; i++){
         //every card has a player#, suit and value. populate those first
         let player = trickArg[i].node.classList[0][6];
@@ -729,33 +729,34 @@ function determineTrickWinner(trickArg){
         let suit = trickArg[i].card.suit;
         if(i == 0){
             currentLeader=player;
-            currentHighCard=value;
+            hand.currentHighCard=value;
             startingSuit=suit;
         }
-        if(trickArg[i].card.toString() == offJack.toString()){
-            console.log("OFFJACK");
-            suit = trumpSuit;
+        if(trickArg[i].card.toString() == hand.offJack.toString()){
+            console.log("OFFJACK in determine trick winner we can remove");
+            console.log(trickArg[i].card.toString());
+            suit = hand.trumpSuit;
             if(i == 0)
-                startingSuit = trumpSuit;
+                startingSuit = hand.trumpSuit;
             value=10.9; //a little weaker than boss jack
         }
         if(trickArg[i].card.value == 20){
             console.log("BUG");
-            suit = trumpSuit;
-            value=10.8;
+            suit = hand.trumpSuit;
+            value=20;
         }
         console.log("suit: " + suit);
         console.log("startingSuit: " + startingSuit);
         if(suit == startingSuit){ //we are of the same suit as what was led. if somone already trumped in skip it
             if(trumpingInSuit == null){
                 console.log("same suit, nobody trumped in yet");
-                if(value > currentHighCard){
+                if(value > hand.currentHighCard){
                     currentLeader=player;
-                    currentHighCard=value;
+                    hand.currentHighCard=value;
                 }
             } 
         }
-        else if(suit == trumpSuit){ //trumping in
+        else if(suit == hand.trumpSuit){ //trumping in
             console.log("trumping in");
             console.log("player: " + player);
             //check if its already been trumped in on
@@ -763,7 +764,7 @@ function determineTrickWinner(trickArg){
                 trumpingInHighValue = value;
                 trumpingInSuit = suit;
                 currentLeader=player;
-                currentHighCard=null;
+                hand.currentHighCard=null;
             }
             else{//we need to compare values others have trumped already
                 if(trumpingInHighValue < value){
@@ -775,7 +776,7 @@ function determineTrickWinner(trickArg){
     }
     
     if(trumpingInSuit == null){
-        console.log("current high card: " + currentHighCard);
+        console.log("current high card: " + hand.currentHighCard);
         console.log("suit that won it: " + startingSuit);
     }
     else{
@@ -789,53 +790,52 @@ function determineTrickWinner(trickArg){
             trickArg[i].node.classList.add("trick0");
             console.log("adding trick0 to every card in play");
         }
-        p0Trick.push(trickArg);
+        hand.p0Trick.push(trickArg);
     }
     if(currentLeader == 1){
         for(let i = 0; i < trickArg.length; i++)
-        trickArg[i].node.classList.add("trick1");
-        p1Trick.push(trickArg); 
+            trickArg[i].node.classList.add("trick1");
+        hand.p1Trick.push(trickArg); 
     }
           
     if(currentLeader == 2){
         for(let i = 0; i < trickArg.length; i++)
-        trickArg[i].node.classList.add("trick2");
-        p2Trick.push(trickArg); 
+            trickArg[i].node.classList.add("trick2");
+        hand.p2Trick.push(trickArg); 
     }  
     if(currentLeader == 3){
         for(let i = 0; i < trickArg.length; i++)
-        trickArg[i].node.classList.add("trick3");
-        p3Trick.push(trickArg); 
+            trickArg[i].node.classList.add("trick3");
+        hand.p3Trick.push(trickArg); 
     }
-    trick=[]; //reset the global trick
-    handsPlayed++;
-    leadSuit = null;
-    console.log("hands played: " + handsPlayed);
-    if(handsPlayed == 6)
+    hand.trick=[]; //reset the trick
+    hand.handsPlayed++;
+    hand.leadSuit = null; //reset maybe????????
+    console.log("hands played: " + hand.handsPlayed);
+    if(hand.handsPlayed == 6)
         tallyGamePoints();
     else
         return currentLeader;
 }
 function calcHigh(argCard){
-    if(argCard.suit == trumpSuit){
-        if(argCard.value > currentHighValue){
-            currentHighValue = argCard.value;
+    if(argCard.suit == hand.trumpSuit){
+        if(argCard.value > hand.currentHighValue){
+            hand.currentHighValue = argCard.value;
             return argCard.value;
         }
     }
 }
 function calcBoss(argCard){
-    if(argCard.toString() == bossJack.toString())
+    if(argCard.toString() == hand.bossJack.toString())
         return true;
 }
 function calcOff(argCard){
-    if(argCard.toString() == offJack.toString())
+    if(argCard.toString() == hand.offJack.toString())
         return true;
 }
 function calcBug(argCard){
     if(argCard.value == 20)
         return true;
-
 }
 function calcGew(argVal){
     if(argVal == 10)
@@ -866,165 +866,166 @@ function tallyGamePoints(){
     let offPlayer = null;
     let bossPlayer = null;
     let bugPlayer = null;
-    for(let i = 0; i < p0Trick.length; i++){
-        for(let j = 0; j < p0Trick[i].length; j++){
-            themGew += calcGew(p0Trick[i][j].card.value)
-            temp = calcHigh(p0Trick[i][j].card);
-            if(temp > high.value){
-                high.value = temp;
+    for(let i = 0; i < hand.p0Trick.length; i++){
+        for(let j = 0; j < hand.p0Trick[i].length; j++){
+            themGew += calcGew(hand.p0Trick[i][j].card.value)
+            let possibleHigh = calcHigh(hand.p0Trick[i][j].card);
+            if(possibleHigh > high.value){
+                high.value = possibleHigh;
                 high.player = 0;
             }
-            if(calcOff(p0Trick[i][j].card))
-                offPlayer = 0;
-            if(calcBoss(p0Trick[i][j].card))
-                bossPlayer = 0;
-            if(calcBug(p0Trick[i][j].card))
-                bugPlayer = 0;
+            if(calcOff(hand.p0Trick[i][j].card))
+                hand.offPlayer = 0;
+            if(calcBoss(hand.p0Trick[i][j].card))
+                hand.bossPlayer = 0;
+            if(calcBug(hand.p0Trick[i][j].card))
+                hand.bugPlayer = 0;
         }
     }
-    for(let i = 0; i < p1Trick.length; i++){
-        for(let j = 0; j < p1Trick[i].length; j++){
-            usGew += calcGew(p1Trick[i][j].card.value)
-            temp = calcHigh(p1Trick[i][j].card);
-            if(temp > high.value){
-                high.value = temp;
+    for(let i = 0; i < hand.p1Trick.length; i++){
+        for(let j = 0; j < hand.p1Trick[i].length; j++){
+            usGew += calcGew(hand.p1Trick[i][j].card.value)
+            let possibleHigh = calcHigh(hand.p1Trick[i][j].card);
+            if(possibleHigh > high.value){
+                high.value = possibleHigh;
                 high.player = 1;
             }
-            if(calcOff(p1Trick[i][j].card))
+            if(calcOff(hand.p1Trick[i][j].card))
                 offPlayer = 1;
-            if(calcBoss(p1Trick[i][j].card))
+            if(calcBoss(hand.p1Trick[i][j].card))
                 bossPlayer = 1;
-            if(calcBug(p1Trick[i][j].card))
+            if(calcBug(hand.p1Trick[i][j].card))
                 bugPlayer = 1;
         }
     }
 
-    for(let i = 0; i < p2Trick.length; i++){
-        for(let j = 0; j < p2Trick[i].length; j++){
-            themGew += calcGew(p2Trick[i][j].card.value)
-            temp = calcHigh(p2Trick[i][j].card);
+    for(let i = 0; i < hand.p2Trick.length; i++){
+        for(let j = 0; j < hand.p2Trick[i].length; j++){
+            themGew += calcGew(hand.p2Trick[i][j].card.value)
+            temp = calcHigh(hand.p2Trick[i][j].card);
             if(temp > high.value){
                 high.value = temp;
                 high.player = 2;
             }
-            if(calcOff(p2Trick[i][j].card))
+            if(calcOff(hand.p2Trick[i][j].card))
                 offPlayer = 2;
-            if(calcBoss(p2Trick[i][j].card))
+            if(calcBoss(hand.p2Trick[i][j].card))
                 bossPlayer = 2;
-            if(calcBug(p2Trick[i][j].card))
+            if(calcBug(hand.p2Trick[i][j].card))
                 bugPlayer = 2;
         }
     }
 
-    for(let i = 0; i < p3Trick.length; i++){
-        for(let j = 0; j < p3Trick[i].length; j++){
-            usGew += calcGew(p3Trick[i][j].card.value)
-            temp = calcHigh(p3Trick[i][j].card);
+    for(let i = 0; i < hand.p3Trick.length; i++){
+        for(let j = 0; j < hand.p3Trick[i].length; j++){
+            usGew += calcGew(hand.p3Trick[i][j].card.value)
+            temp = calcHigh(hand.p3Trick[i][j].card);
             if(temp > high.value){
                 high.value = temp;
                 high.player = 3;
             }
-            if(calcOff(p3Trick[i][j].card))
+            if(calcOff(hand.p3Trick[i][j].card))
                 offPlayer = 3;
-            if(calcBoss(p3Trick[i][j].card))
+            if(calcBoss(hand.p3Trick[i][j].card))
                 bossPlayer = 3;
-            if(calcBug(p3Trick[i][j].card))
+            if(calcBug(hand.p3Trick[i][j].card))
                 bugPlayer = 3;
         }
     }   
     //display calulations
     if(usGew > themGew){
         document.getElementById("gewUs").innerText = 1;
-        usScore += 1;
+        hand.usScore += 1;
     }
     else{
         document.getElementById("gewThem").innerText = 1;
-        themScore += 1;
+        hand.themScore += 1;
     }
     if(high.player == 0 || high.player == 2){
         document.getElementById("highThem").innerText = 1;
-        themScore += 1;
+        hand.themScore += 1;
     }   
     else{
         document.getElementById("highUs").innerText = 1;
-        usScore += 1;
+        hand.usScore += 1;
     }
         
     if(offPlayer == 0 || offPlayer == 2){
         document.getElementById("offThem").innerText = 1;
-        themScore += 1;
+        hand.themScore += 1;
     }
     if(offPlayer == 1 || offPlayer == 3){
         document.getElementById("offUs").innerText = 1;
-        usScore += 1;
+        hand.usScore += 1;
     }
     if(bossPlayer == 0 || bossPlayer == 2){
         document.getElementById("bossThem").innerText = 1;
-        themScore += 1;
+        hand.themScore += 1;
     }
     if(bossPlayer == 1 || bossPlayer == 3){
         document.getElementById("bossUs").innerText = 1;
-        usScore += 1;
+        hand.usScore += 1;
     }
         
     if(bugPlayer == 0 || bugPlayer == 2){
         document.getElementById("bugThem").innerText = 1;
-        themScore += 1;
+        hand.themScore += 1;
     }
         
     if(bugPlayer == 1 || bugPlayer == 3){
         document.getElementById("bugUs").innerText = 1;
-        usScore += 1;
+        hand.usScore += 1;
     }
         
-    if(lowPlayer == 0 || lowPlayer == 2){
+    if(hand.lowPlayer == 0 || hand.lowPlayer == 2){
         document.getElementById("lowThem").innerText = 1;
-        themScore += 1;
+        hand.themScore += 1;
     }
         
-    if(lowPlayer == 1 || lowPlayer == 3){
+    if(hand.lowPlayer == 1 || hand.lowPlayer == 3){
         document.getElementById("lowUs").innerText = 1;
-        usScore += 1;
+        hand.usScore += 1;
     }
-    //update scoreboard
-    let indexWinningBidder = dealerOrder.indexOf(winningBidder);
+    //update scoreboard    
+    let indexWinningBidder = game.dealerOrder.indexOf(hand.winningBidder);
     if(indexWinningBidder == 0 || indexWinningBidder == 2){
-        if(themScore < currentHighBid){
-            document.getElementById("gameOverMessage").innerText = `bad guys got set backwards for ${currentHighBid}`;
-            themScore = currentHighBid - currentHighBid - currentHighBid;
+        if(hand.themScore < hand.currentHighBid){ //this hand bad guys got set
+            document.getElementById("gameOverMessage").innerText = `bad guys got set backwards for ${hand.currentHighBid}`;
+            hand.themScore = hand.currentHighBid - hand.currentHighBid - hand.currentHighBid;
         }
-        else
+        else{ //the bad guys bid and got their bid hand.themScore is good the way it is
             document.getElementById("gameOverMessage").innerText = "bad guys won the hand";
+        }
     }
     else{
-        if(usScore< currentHighBid){
-            document.getElementById("gameOverMessage").innerText = `good guys got set backwards for ${currentHighBid}`;
-            console.log("us score before subtraction: " + usScore);
-            usScore = currentHighBid - currentHighBid - currentHighBid;
-            console.log("us score after subtraction: " + usScore);
+        if(hand.usScore< hand.currentHighBid){ //this hand the good guys got set
+            document.getElementById("gameOverMessage").innerText = `good guys got set backwards for ${hand.currentHighBid}`;
+            hand.usScore = hand.currentHighBid - hand.currentHighBid - hand.currentHighBid;
         }
         else
             document.getElementById("gameOverMessage").innerText = "good guys won the hand";
     }
-    document.getElementById("scoreGoodGuys").innerText = usScore;
-    document.getElementById("scoreBadGuys").innerText = themScore;
+    game.themScoreTotal += hand.themScore;
+    game.usScoreTotal += hand.usScore;;
+    document.getElementById("scoreGoodGuys").innerText = game.usScoreTotal;
+    document.getElementById("scoreBadGuys").innerText = game.themScoreTotal;
     //end of game logic
-    if(usScore > 20 || themScore > 20){ //game is over. we need to check for Staubs case bidder wins if both go out
-        if(usScore > 20 && themScore > 20){ //the bidder wins
-            if(indexWinningBidder == 1 || indexWinningBidder == 3)
+    if(game.usScoreTotal > 20 || game.themScoreTotal > 20){ //game is over. we need to check for Staubs case bidder wins if both go out
+        if(game.usScoreTotal > 20 && game.themScoreTotal > 20){ //the bidder wins
+            if(hand.indexWinningBidder == 1 || hand.indexWinningBidder == 3)
                 alert("Good guys won the Game!!! STAUBS!!!");
             else
                 alert("Bad guys won the Game!!! STAUBS!!!!!");
         }
         else{ //only 1 player went out print who it is
-            if(usScore > 20)
+            if(game.usScoreTotal > 20)
                 alert("good Guys win it again!!");
             else  
                 alert("Bad Guys win it booooo!!");
         }
         //reset the usScore and themscore
-        usScore = 0;
-        themScore = 0;
+        //game.usScoreTotal = 0;
+        //themScore = 0;
     }
 
     restartGame();
@@ -1037,57 +1038,17 @@ async function restartGame(){
     document.getElementById("discard").classList.add("hidden");
     document.getElementById("computerWonBid").classList.add("hidden");
     document.getElementById("biddingTable").classList.remove("hidden"); //hide biddingTable
-    document.getElementById("bidderDirection").innerText = "--";
-    document.getElementById("bidValue").innerText = "--";
-    document.getElementById("trumpSuit").innerText = "--";
     document.getElementById("gameOverMessage").innerText = "";
-    let temp = document.querySelectorAll(".gameEndVal");
-    for(let i = 0; i < temp.length; i++){
-        console.log("before: " + temp[i].innerText);
-        temp[i].innerText = "--";
-    }
-    //move the dealer over, clear the bid, trump suit
-    currentDealerIndex++;
-    currentBidderIndex = currentDealerIndex + 1;
-    if(currentBidderIndex == 4)
-        currentBidderIndex = 0;
-    document.getElementById("dealerValue").innerText = dealerOrder[currentDealerIndex];
-    document.getElementById("bidderDirection").innerText = dealerOrder[currentBidderIndex];
-    document.getElementById("westValue").innerText = "--";
-    document.getElementById("eastValue").innerText = "--";
-    document.getElementById("northValue").innerText = "--";
-    document.getElementById("southValue").innerText = "--";
-    //reset the global variables
-    trumpSuit = null;
-    currentHighBid = null;
-    currentHighBid = 0;
-    trumpSuit ="";
-    winningBidder = "";
-    playerBidAmounts = [0,0,0,0];
-    bidCounter=0;
-    discards = [];
-    p0Trick = [];
-    p1Trick = [];
-    p2Trick = [];
-    p3Trick = [];
-    game.p0Cards = [];
-    game.p1Cards = [];
-    game.p2Cards = [];
-    game.p3Cards = [];
-    totalHandsPlayed = 0;
-    playHandCounter = 0;
-    indexStartingPlayer = currentBidderIndex;
-    handsPlayed = 0;
-    offJack = null;
-    bossJack = null;
-    bug = null;
-    high = null;
-    low=14; //set arbitarily high
-    lowPlayer = null;
-    trick = []; //needs to be global because user function and computer function use it
-    deck = [];
-    leadSuit = null;
-    currentHighValue = null;
+    let gameEndValClass = document.querySelectorAll(".gameEndVal");
+    for(let i = 0; i < gameEndValClass.length; i++)
+        gameEndValClass[i].innerText = "--";
+    let gameValueClass = document.querySelectorAll(".gameValue");
+   for(let i = 0; i < gameValueClass.length; i++)
+        gameValueClass[i].innerText = "--";
+    let bidClass = document.querySelectorAll(".bid");
+    for(let i = 0; i < bidClass.length; i++)
+        bidClass[i].innerText = "--";
+    document.getElementById("dealerValue").innerText=game.dealerOrder[game.currentDealerIndex];
     //player0 1 2 3 4 cards are still in the dom and should be removed
     let player0Cards = document.querySelectorAll(".player0");
     let player1Cards = document.querySelectorAll(".player1");
@@ -1100,10 +1061,15 @@ async function restartGame(){
         p3:player3Cards
     }
     for(let j = 0; j < 4; j++){
-        for(let i = 0; i < obj[`p${j}`].length; i++){
-            console.log("removing cards should be 24");
+        for(let i = 0; i < obj[`p${j}`].length; i++)
             obj[`p${j}`][i].remove();
-        }
     }
+
+    game.currentDealerIndex++;
+    game.currentBidderIndex = game.currentDealerIndex + 1;
+    if(game.currentBidderIndex == 4)
+        game.currentBidderIndex = 0;
+    document.getElementById("dealerValue").innerText=game.dealerOrder[game.currentDealerIndex];
+    hand.reset();
     startGame();
 }

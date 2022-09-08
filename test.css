@@ -1,0 +1,8 @@
+.moveDown{
+    transform:translatey(30%);
+    transition-duration: 1s;
+}
+.moveUp{
+    transform:translatey(-30%);
+    transition-duration: 1s;
+}
