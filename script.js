@@ -15,6 +15,7 @@ class Game{
         this.usScoreTotal = 0; //cummunlative score
         this.themScoreTotal = 0; //cumunlative score
         this.dealerOrder = ['west', 'south', 'east', 'north']
+        //this.dealerOrder = ['east', 'south', 'west', 'north'];
         this.currentDealerIndex = 0; //west intitial
         this.currentBidderIndex = 1; //south initial
     }
