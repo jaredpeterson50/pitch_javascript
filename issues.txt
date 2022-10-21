@@ -1,0 +1,8 @@
+Things we need to fix 10-13-2022
+- annimation on discard has cards going to the same exact spot instead of offset- FIXED
+- should be a longer delay after all players have played their cards so you can determine who won the trick
+- change the end of the game to a click instead of a timeout so you can review the points scored
+- when playing cards all 4 players cards need adjustment on full screen
+
+- on iphone normal view the transitions are terrible
+

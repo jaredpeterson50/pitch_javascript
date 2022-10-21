@@ -14,8 +14,7 @@ class Game{
         this.values = [2,3,4,5,6,7,8,9,10,11,12,13,14];
         this.usScoreTotal = 0; //cummunlative score
         this.themScoreTotal = 0; //cumunlative score
-        this.dealerOrder = ['west', 'south', 'east', 'north']
-        //this.dealerOrder = ['east', 'south', 'west', 'north'];
+        this.dealerOrder = ['east', 'south', 'west', 'north'];
         this.currentDealerIndex = 0; //west intitial
         this.currentBidderIndex = 1; //south initial
     }
@@ -103,15 +102,22 @@ let game = new Game();
 let hand = new Hand();
 
 var timer = ms => new Promise(res => setTimeout(res, ms));
-var delay = 1000;
+var delay = 2000;
 startGame();
 
 function startGame(){
+    document.getElementById("dealerValue").innerText=game.dealerOrder[game.currentDealerIndex];
+    //document.getElementById("bidderDirection").innerText=game.dealerOrder[game.currentBidderIndex];
     createDeck();
     shuffle();
     deal();
     sortBySuit();
     showCards();
+    console.log("checking the cards by player");
+    console.log(hand.p0Cards);
+    console.log(hand.p1Cards);
+    console.log(hand.p2Cards);
+    console.log(hand.p3Cards);
     bid();
 }
 
@@ -344,7 +350,8 @@ function toggleCardsUp(){
         if(canUserDiscard(hand.p1Cards[i])){//we are mixing the i values of different arrays but i dont know how else
             if(hand.isToggledUp[i] == false){
                 player1Cards[i].addEventListener('click', () => {
-                player1Cards[i].classList.add("translateY");
+                player1Cards[i].classList.add(`p1c${i}Up`); //change this to string interpolation p1c0Up
+                //player1Cards[i].classList.add("translateY"); //change this to string interpolation
                 hand.isToggledUp[i] = true;
                 toggleCardsDown();
                 }); 
@@ -361,7 +368,8 @@ function toggleCardsDown(){
         if(canUserDiscard(hand.p1Cards[i])){//we are mixing the i values of different arrays but i dont know how else
             if(hand.isToggledUp[i] == true){
                 player1Cards[i].addEventListener('click', () => {
-                player1Cards[i].classList.remove("translateY");
+                player1Cards[i].classList.remove(`p1c${i}Up`);
+                //player1Cards[i].classList.remove("translateY");
                 hand.isToggledUp[i] = false;
                 toggleCardsUp();
                 }); 
@@ -486,7 +494,7 @@ function findLow(){
 //this function is called when the user clicks a card playing it.
 async function handleClick(){
     let i = this.classList[2][3];
-    player1Cards[i].classList.add("translatep1Play");
+    player1Cards[i].classList.add("p1Play");
     let obj = {
         card:hand.p1Cards[i],
         node:player1Cards[i]
@@ -690,7 +698,22 @@ async function playHand(){
             //playIndex is the index of the card the computer player should play 
             let playIndex = whatCardToPlayCPU(hand.indexCurrentPlayer, hand.totalHandsPlayed);
             //we have 2D arrays in hand[][] and nodeCards[][] hand is the Card nodeCards is the Html
-            nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex].classList.add(`translatep${hand.indexCurrentPlayer}Play`);
+            //nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex].classList.add(`translatep${hand.indexCurrentPlayer}Play`);
+            let xVal = 0;
+            let yVal = 0;
+            if(hand.indexCurrentPlayer == 2)
+                xVal =0;//-150
+            if(hand.indexCurrentPlayer == 3){
+                xVal = -50;
+                yVal = -100;
+            }
+            if(hand.indexCurrentPlayer == 0)
+                xVal = 80;
+            //css
+            if(hand.indexCurrentPlayer == 1){
+                console.log("its PLAYER!!!!!!1111111");
+            }
+            nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex].classList.add(`p${hand.indexCurrentPlayer}Play`); //p1playp2play...
             let obj = {
                 card:hand[`p${hand.indexCurrentPlayer}Cards`][playIndex],
                 node:nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex]
