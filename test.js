@@ -38,5 +38,8 @@ for(let i = 0; i < p3.length; i++){
         console.log("player3");
         console.log(window.innerHeight);
         console.log(p3[i].getBoundingClientRect().top);
+        console.log("left: " + p3[i].getBoundingClientRect().left);
+        console.log("the X: " + p3[i].getBoundingClientRect().x);
+        console.log("the y: " + p3[i].getBoundingClientRect().y);
     })
 }

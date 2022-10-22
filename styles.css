@@ -138,18 +138,18 @@
 .player0,.player1, .player2, .player3{
   display: inline-block;
   position: absolute;
-  width:17vh;
+  width:100px;
 }
 .player0{
-  right:0;
-  transform:rotate(90deg) translateY(-40%);
+  right:-70px;
+  transform:rotate(90deg);
 }
 .player1{
-  bottom:0;
+  bottom:-40px;
 }
 .player2{
-  left:0;
-  transform:rotate(90deg) translateY(40%);
+  left:-70px;
+  transform:rotate(90deg);
 }
 .player3{
   top:0;
@@ -162,100 +162,87 @@ img{
   max-width: 100%;
 }
 .p0c0{
-  top:35vh;
+  top:calc(50% - 120px);
   z-index: 5;
 }
 .p0c1{
-  top:38vh;   
+  top:calc(50% - 100px); 
   z-index: 4;        
 }
 .p0c2{
-  top:41vh; 
+  top:calc(50% - 80px);
   z-index: 3;        
 }
 .p0c3{
-  top:44vh;
+  top:calc(50% - 60px);
   z-index: 2;  
 }
 .p0c4{
-  top:47vh;
+  top:calc(50% - 40px);
   z-index: 1;         
 }
 .p0c5{
-  top:50vh;    
+  top:calc(50% - 20px);  
   z-index: 0;       
 }
 .p1c0{
-  left: 50%;
-  transform: translate(-100%, 40%);    
+  left:calc(50% - 100px); 
 }
 .p1c1{
-  left: 50%;
-  transform: translate(-80%, 40%); 
+  left:calc(50% - 80px);
 }
 .p1c2{
-  left: 50%;
-  transform: translate(-60%, 40%);     
+  left:calc(50% - 60px);
 }
 .p1c3{
-  left: 50%;   
-  transform: translate(-40%, 40%);   
+  left:calc(50% - 40px);   
 }
 .p1c4{
-  left: 50%;
-  transform: translate(-20%, 40%);
+  left:calc(50% - 20px);
 }
 .p1c5{
-  left: 50%;   
-  transform:translate(0%, 40%);    
-
+  left:50%;     
 }
 .p2c0{
-  top:35vh;
+  top:calc(50% - 120px);
 }
 .p2c1{
-  top:38vh;
+  top:calc(50% - 100px);
 }
 .p2c2{
-  top:41vh;
+  top:calc(50% - 80px);
 }
 .p2c3{
-  top:44vh;
+  top:calc(50% - 60px);
 }
 .p2c4{
-  top:47vh;
+  top:calc(50% - 40px);
 }
 .p2c5{
-  top:50vh;
+  top:calc(50% - 20px);
 }
 .p3c0{
-  left: 50%;
-  transform: translate(-85%, -40%);
+  left:calc(50% - 100px);
   z-index: 5;
 }
 .p3c1{
-  left: 50%;
-  transform: translate(-71%, -40%);
+  left:calc(50% - 80px);
   z-index: 4;
 }
 .p3c2{
-  left: 50%;
-  transform: translate(-57%, -40%);
+  left:calc(50% - 60px);
   z-index: 3;
 }
 .p3c3{
-  left: 50%;
-  transform: translate(-43%, -40%);
+  left:calc(50% - 40px);
   z-index: 2;
 }
 .p3c4{
-  left: 50%;
-  transform: translate(-29%, -40%);
+  left:calc(50% - 20px);
   z-index: 1;
 }
 .p3c5{
   left:50%;
-  transform:translate(-15%,-40%);
   z-index: 0;
 }
 .p1c0Up{

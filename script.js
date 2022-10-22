@@ -102,7 +102,7 @@ let game = new Game();
 let hand = new Hand();
 
 var timer = ms => new Promise(res => setTimeout(res, ms));
-var delay = 2000;
+var delay = 1000;
 startGame();
 
 function startGame(){
@@ -113,11 +113,6 @@ function startGame(){
     deal();
     sortBySuit();
     showCards();
-    console.log("checking the cards by player");
-    console.log(hand.p0Cards);
-    console.log(hand.p1Cards);
-    console.log(hand.p2Cards);
-    console.log(hand.p3Cards);
     bid();
 }
 
@@ -494,7 +489,9 @@ function findLow(){
 //this function is called when the user clicks a card playing it.
 async function handleClick(){
     let i = this.classList[2][3];
-    player1Cards[i].classList.add("p1Play");
+    gsap.to(`.p1c${i}`, {rotation: 180, 
+    x:(window.innerWidth/2) -100 - player1Cards[i].getBoundingClientRect().left, 
+    y: ((window.innerHeight-160)/2) +50- player1Cards[i].getBoundingClientRect().top, duration: 1});
     let obj = {
         card:hand.p1Cards[i],
         node:player1Cards[i]
@@ -502,7 +499,7 @@ async function handleClick(){
     if(hand.playHandCounter==0)
         hand.leadSuit = obj.card.suit;
     hand.p1Cards[i].played = true;
-    console.log("player# 1: "  + obj.card.toString());
+ //   console.log("player# 1: "  + obj.card.toString());
     hand.trick.push(obj);
     hand.indexCurrentPlayer++;
     hand.playHandCounter++
@@ -524,7 +521,7 @@ function checkleadSuit(argCard){
 //this function adds click event listeners to the cards that can be played. darkens the cards that are invalid plays
 //you have to follow suit of what is led if you have it. otherwise play anything.
 function userHandSetup(){
-    console.log("leadsuit: " + hand.leadSuit);
+ //   console.log("leadsuit: " + hand.leadSuit);
     player1Cards = document.querySelectorAll(".player1");
     //before we start remove all old CSS event click listeners and darkenImage
     for(let i = 0; i < player1Cards.length; i++){
@@ -574,10 +571,10 @@ function checkTrump(argCard){
 //1. play largest of what suit is led. 2. if you dont have a card in the lead suit run a jack.
 // if not one of first 2 play the first valid card in your hand
 function whatCardToPlayCPU(currentPlayer, currentHand){
-    console.log("what card to play");
-    console.log("current player: " + currentPlayer);
-    console.log("current hand: " + currentHand);
-    console.log("playhandcounter: " + hand.playHandCounter);
+  //  console.log("what card to play");
+  //  console.log("current player: " + currentPlayer);
+  //  console.log("current hand: " + currentHand);
+  //  console.log("playhandcounter: " + hand.playHandCounter);
     //console.log("card: " + hand[`p${currentPlayer}Cards`][])
     let largestLeadSuit = {
         value:null,
@@ -621,10 +618,10 @@ function whatCardToPlayCPU(currentPlayer, currentHand){
             return largestLeadSuit.index;
         return whatsLeft.index;
     }
-    console.log("leadSuit: " + hand.leadSuit);
+   // console.log("leadSuit: " + hand.leadSuit);
     for(let i = 0; i < hand[`p${currentPlayer}Cards`].length; i++){
         if(checkTrump(hand[`p${currentPlayer}Cards`][i])){
-            console.log("checkTrump returned true");
+     //       console.log("checkTrump returned true");
             if(largestLeadSuit == null){
                 largestLeadSuit.value = hand[`p${currentPlayer}Cards`][i].value;
                 largestLeadSuit.index = i;
@@ -636,7 +633,7 @@ function whatCardToPlayCPU(currentPlayer, currentHand){
         }
     }
     if(largestLeadSuit.value == null){
-       console.log("we dont have any leadsuit. lets run a jack");
+       //console.log("we dont have any leadsuit. lets run a jack");
         for(let i = 0; i < hand[`p${currentPlayer}Cards`].length; i++){
             if(hand[`p${currentPlayer}Cards`][i].toString() == hand.bossJack.toString() && hand[`p${currentPlayer}Cards`][i].played == false){
                 runJack.value = hand[`p${currentPlayer}Cards`][i];
@@ -655,7 +652,7 @@ function whatCardToPlayCPU(currentPlayer, currentHand){
     //dont have leadsuit or a jack to run. populate whatleft with any valid cards to play.
     //will overwrite values till the loop finishes.
     if(runJack.value == null && largestLeadSuit.value == null){
-        console.log("dont have either leadsuit or a jack to run, in whatsleft.");
+       // console.log("dont have either leadsuit or a jack to run, in whatsleft.");
         for(let i = 0; i < hand[`p${currentPlayer}Cards`].length; i++){
             if(hand[`p${currentPlayer}Cards`][i].played == false){
                 whatsLeft.value = hand[`p${currentPlayer}Cards`][i];
@@ -663,14 +660,14 @@ function whatCardToPlayCPU(currentPlayer, currentHand){
             }
         }
     }
-    console.log("what card to play!!");
-    console.log("largestLeadSuite: " + largestLeadSuit.value);
-    console.log("largestLeadSuite index: " + largestLeadSuit.index);
-    console.log("runJack: " + runJack.value);
-    console.log("runJack index: " + runJack.index);
-    console.log("whatsleft: " + whatsLeft.value);
-    console.log("whatsleft index: " + whatsLeft.index);
-    console.log("determinine index.");
+  //  console.log("what card to play!!");
+  //  console.log("largestLeadSuite: " + largestLeadSuit.value);
+  //  console.log("largestLeadSuite index: " + largestLeadSuit.index);
+  //  console.log("runJack: " + runJack.value);
+  //  console.log("runJack index: " + runJack.index);
+  //  console.log("whatsleft: " + whatsLeft.value);
+  //  console.log("whatsleft index: " + whatsLeft.index);
+  //  console.log("determinine index.");
 
     if(largestLeadSuit.index != null)
         return largestLeadSuit.index;
@@ -689,31 +686,29 @@ async function playHand(){
     }
     while(hand.totalHandsPlayed < 6){ //we are going to play 6 hands 
         while(hand.playHandCounter < 4){ //ever hand 4 cards get played
-            console.log("hand.indexCurrentPlayer: " + hand.indexCurrentPlayer);
+    //        console.log("hand.indexCurrentPlayer: " + hand.indexCurrentPlayer);
             if(hand.indexCurrentPlayer == 1){//call userHandSetup to allow user to play valid cards
                 userHandSetup();
                 return;
             }
-            //call whatCardToPlayCPU to make the logic its own function. lots of code to determine what to play
-            //playIndex is the index of the card the computer player should play 
             let playIndex = whatCardToPlayCPU(hand.indexCurrentPlayer, hand.totalHandsPlayed);
-            //we have 2D arrays in hand[][] and nodeCards[][] hand is the Card nodeCards is the Html
-            //nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex].classList.add(`translatep${hand.indexCurrentPlayer}Play`);
-            let xVal = 0;
-            let yVal = 0;
-            if(hand.indexCurrentPlayer == 2)
-                xVal =0;//-150
-            if(hand.indexCurrentPlayer == 3){
-                xVal = -50;
-                yVal = -100;
+            if(hand.indexCurrentPlayer == 0){
+                gsap.to(`.p0c${playIndex}`, {rotation: 270, 
+                x:((window.innerWidth-90)/2) - nodeCards.player0Cards[playIndex].getBoundingClientRect().left, 
+                y:((window.innerHeight-160)/2)  - nodeCards.player0Cards[playIndex].getBoundingClientRect().top, duration: 1});
             }
-            if(hand.indexCurrentPlayer == 0)
-                xVal = 80;
-            //css
-            if(hand.indexCurrentPlayer == 1){
-                console.log("its PLAYER!!!!!!1111111");
+            else if(hand.indexCurrentPlayer == 2){
+                gsap.to(`.p2c${playIndex}`, {rotation: 270, 
+                x:((window.innerWidth-90)/2) -120 - nodeCards.player2Cards[playIndex].getBoundingClientRect().left, 
+                y:((window.innerHeight-160)/2) - nodeCards.player2Cards[playIndex].getBoundingClientRect().top, duration: 1});
             }
-            nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex].classList.add(`p${hand.indexCurrentPlayer}Play`); //p1playp2play...
+            else if(hand.indexCurrentPlayer == 3){
+                gsap.to(`.p3c${playIndex}`, {rotation: 180, 
+                x:(window.innerWidth/2) -100 - nodeCards.player3Cards[playIndex].getBoundingClientRect().left, 
+                y: ((window.innerHeight-160)/2) - 80, duration: 1});
+            }
+            else
+                console.log("ERROR line 712 in playhand");
             let obj = {
                 card:hand[`p${hand.indexCurrentPlayer}Cards`][playIndex],
                 node:nodeCards[`player${hand.indexCurrentPlayer}Cards`][playIndex]
@@ -721,7 +716,7 @@ async function playHand(){
             if(hand.playHandCounter==0) //first one to play start sets the leadSuit
                 hand.leadSuit = obj.card.suit;
             hand[`p${hand.indexCurrentPlayer}Cards`][playIndex].played = true; //mark the Card as played
-            console.log(`player# ${hand.indexCurrentPlayer} card: `  + hand[`p${hand.indexCurrentPlayer}Cards`][playIndex]);
+           // console.log(`player# ${hand.indexCurrentPlayer} card: `  + hand[`p${hand.indexCurrentPlayer}Cards`][playIndex]);
             hand.trick.push(obj);
             hand.playHandCounter++
             hand.indexCurrentPlayer++;
