@@ -56,7 +56,7 @@ class Hand{
         this.currentHighValue;
     }
     reset(){
-        console.log("reset the hand");
+     //   console.log("reset the hand");
         this.p0Trick = [];
         this.p1Trick = [];
         this.p2Trick = [];
@@ -94,6 +94,7 @@ class Hand{
 
 //hide all of the prompts until later in the game when needed
 document.getElementById("gameEnd").classList.add("hidden");
+document.getElementById("gameEndBtn").classList.add("hidden");
 document.getElementById("playerSuitSelection").classList.add("hidden"); //make suit selection hidden default
 document.getElementById("discard").classList.add("hidden");
 document.getElementById("computerWonBid").classList.add("hidden");
@@ -107,7 +108,6 @@ startGame();
 
 function startGame(){
     document.getElementById("dealerValue").innerText=game.dealerOrder[game.currentDealerIndex];
-    //document.getElementById("bidderDirection").innerText=game.dealerOrder[game.currentBidderIndex];
     createDeck();
     shuffle();
     deal();
@@ -266,7 +266,7 @@ async function bid(){
                 hand.trumpSuit=bidObj.suit;
                 hand.winningBidder=game.dealerOrder[game.currentBidderIndex];
                 hand.indexCurrentPlayer=game.currentBidderIndex; //default is set for player1, else set here
-                console.log("trump suit: " + hand.trumpSuit);
+            //    console.log("trump suit: " + hand.trumpSuit);
                 document.getElementById("bidderDirection").innerText=game.dealerOrder[game.currentBidderIndex]; //display bidder
             }
             //below populated bid table with each players bid
@@ -345,8 +345,7 @@ function toggleCardsUp(){
         if(canUserDiscard(hand.p1Cards[i])){//we are mixing the i values of different arrays but i dont know how else
             if(hand.isToggledUp[i] == false){
                 player1Cards[i].addEventListener('click', () => {
-                player1Cards[i].classList.add(`p1c${i}Up`); //change this to string interpolation p1c0Up
-                //player1Cards[i].classList.add("translateY"); //change this to string interpolation
+                player1Cards[i].classList.add("p1CardUp");
                 hand.isToggledUp[i] = true;
                 toggleCardsDown();
                 }); 
@@ -363,8 +362,7 @@ function toggleCardsDown(){
         if(canUserDiscard(hand.p1Cards[i])){//we are mixing the i values of different arrays but i dont know how else
             if(hand.isToggledUp[i] == true){
                 player1Cards[i].addEventListener('click', () => {
-                player1Cards[i].classList.remove(`p1c${i}Up`);
-                //player1Cards[i].classList.remove("translateY");
+                player1Cards[i].classList.remove("p1CardUp");
                 hand.isToggledUp[i] = false;
                 toggleCardsUp();
                 }); 
@@ -492,6 +490,11 @@ async function handleClick(){
     gsap.to(`.p1c${i}`, {rotation: 180, 
     x:(window.innerWidth/2) -100 - player1Cards[i].getBoundingClientRect().left, 
     y: ((window.innerHeight-160)/2) +50- player1Cards[i].getBoundingClientRect().top, duration: 1});
+    //immediately after the annimation remove the event listerners from the rest of player 1 cards
+    //so you can't play more than 1 card or play a card out of order
+    for(let i = 0; i < player1Cards.length; i++){
+        player1Cards[i].removeEventListener("click", handleClick);
+    }
     let obj = {
         card:hand.p1Cards[i],
         node:player1Cards[i]
@@ -499,7 +502,6 @@ async function handleClick(){
     if(hand.playHandCounter==0)
         hand.leadSuit = obj.card.suit;
     hand.p1Cards[i].played = true;
- //   console.log("player# 1: "  + obj.card.toString());
     hand.trick.push(obj);
     hand.indexCurrentPlayer++;
     hand.playHandCounter++
@@ -675,7 +677,6 @@ function whatCardToPlayCPU(currentPlayer, currentHand){
         return runJack.index;
     return whatsLeft.index;
 }
-    
 
 async function playHand(){
     let nodeCards = { //make it an object so we can use string interpolation to access the values
@@ -686,9 +687,8 @@ async function playHand(){
     }
     while(hand.totalHandsPlayed < 6){ //we are going to play 6 hands 
         while(hand.playHandCounter < 4){ //ever hand 4 cards get played
-    //        console.log("hand.indexCurrentPlayer: " + hand.indexCurrentPlayer);
             if(hand.indexCurrentPlayer == 1){//call userHandSetup to allow user to play valid cards
-                userHandSetup();
+                userHandSetup(); //maybe remove all the css classes after a card is played.
                 return;
             }
             let playIndex = whatCardToPlayCPU(hand.indexCurrentPlayer, hand.totalHandsPlayed);
@@ -716,7 +716,6 @@ async function playHand(){
             if(hand.playHandCounter==0) //first one to play start sets the leadSuit
                 hand.leadSuit = obj.card.suit;
             hand[`p${hand.indexCurrentPlayer}Cards`][playIndex].played = true; //mark the Card as played
-           // console.log(`player# ${hand.indexCurrentPlayer} card: `  + hand[`p${hand.indexCurrentPlayer}Cards`][playIndex]);
             hand.trick.push(obj);
             hand.playHandCounter++
             hand.indexCurrentPlayer++;
@@ -735,7 +734,7 @@ async function playHand(){
 //pushes the cards into the correct players trick array for counting up points at the end of the hand.
 //this function returns the index of the winning plaer for this trick.
 function determineTrickWinner(trickArg){
-    console.log("trick");
+   // console.log("trick");
     let currentLeader; //player index who is winning the trick thus far
     let startingSuitHighValue = ""; //highest value played so far of suit the was led out
     let startingSuit; //suit of the first card played
@@ -752,23 +751,23 @@ function determineTrickWinner(trickArg){
             startingSuit=suit;
         }
         if(trickArg[i].card.toString() == hand.offJack.toString()){
-            console.log("OFFJACK in determine trick winner we can remove");
-            console.log(trickArg[i].card.toString());
+            //console.log("OFFJACK in determine trick winner we can remove");
+            //console.log(trickArg[i].card.toString());
             suit = hand.trumpSuit;
             if(i == 0)
                 startingSuit = hand.trumpSuit;
             value=10.9; //a little weaker than boss jack
         }
         if(trickArg[i].card.value == 20){
-            console.log("BUG");
+            //console.log("BUG");
             suit = hand.trumpSuit;
             value=20;
         }
-        console.log("suit: " + suit);
-        console.log("startingSuit: " + startingSuit);
+        //console.log("suit: " + suit);
+        //console.log("startingSuit: " + startingSuit);
         if(suit == startingSuit){ //we are of the same suit as what was led. if somone already trumped in skip it
             if(trumpingInSuit == null){
-                console.log("same suit, nobody trumped in yet");
+          //      console.log("same suit, nobody trumped in yet");
                 if(value > hand.currentHighCard){
                     currentLeader=player;
                     hand.currentHighCard=value;
@@ -776,8 +775,8 @@ function determineTrickWinner(trickArg){
             } 
         }
         else if(suit == hand.trumpSuit){ //trumping in
-            console.log("trumping in");
-            console.log("player: " + player);
+           // console.log("trumping in");
+            //console.log("player: " + player);
             //check if its already been trumped in on
             if(trumpingInSuit == null){ //since they are first to trump they lead now
                 trumpingInHighValue = value;
@@ -795,19 +794,18 @@ function determineTrickWinner(trickArg){
     }
     
     if(trumpingInSuit == null){
-        console.log("current high card: " + hand.currentHighCard);
-        console.log("suit that won it: " + startingSuit);
+      //  console.log("current high card: " + hand.currentHighCard);
+      //  console.log("suit that won it: " + startingSuit);
     }
     else{
-        console.log("current high card: " + trumpingInHighValue);
-        console.log("suit that won it: " + trumpingInSuit);
+       // console.log("current high card: " + trumpingInHighValue);
+       // console.log("suit that won it: " + trumpingInSuit);
     }
-    console.log("player that won the trick: " + currentLeader);
+    //console.log("player that won the trick: " + currentLeader);
     
     if(currentLeader == 0){
         for(let i = 0; i < trickArg.length; i++){
             trickArg[i].node.classList.add("trick0");
-            console.log("adding trick0 to every card in play");
         }
         hand.p0Trick.push(trickArg);
     }
@@ -830,7 +828,7 @@ function determineTrickWinner(trickArg){
     hand.trick=[]; //reset the trick
     hand.handsPlayed++;
     hand.leadSuit = null; //reset maybe????????
-    console.log("hands played: " + hand.handsPlayed);
+   // console.log("hands played: " + hand.handsPlayed);
     if(hand.handsPlayed == 6)
         tallyGamePoints();
     else
@@ -873,8 +871,8 @@ function calcGew(argVal){
 }
 //we need to be setting the low as the game is played. I guess after redeal we could look through as see who has the low
 function tallyGamePoints(){
-    console.log("in tally game points");
     document.getElementById("gameEnd").classList.remove("hidden");
+    document.getElementById("gameEndBtn").classList.remove("hidden");
     //determine who won gew
     let usGew = 0;
     let themGew = 0;
@@ -1042,17 +1040,11 @@ function tallyGamePoints(){
             else  
                 alert("Bad Guys win it booooo!!");
         }
-        //reset the usScore and themscore
-        //game.usScoreTotal = 0;
-        //themScore = 0;
     }
-
-    restartGame();
 }
-async function restartGame(){
-    console.log("going to restart game");
-    await timer(4000);
+    function restartGame(){
     document.getElementById("gameEnd").classList.add("hidden");
+    document.getElementById("gameEndBtn").classList.add("hidden");
     document.getElementById("playerSuitSelection").classList.add("hidden"); //make suit selection hidden default
     document.getElementById("discard").classList.add("hidden");
     document.getElementById("computerWonBid").classList.add("hidden");

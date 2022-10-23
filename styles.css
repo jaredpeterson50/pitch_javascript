@@ -29,6 +29,22 @@
   border:1px solid black;
   cursor: pointer;
 }
+.handOverBtn {
+  position: absolute;
+  top:70%;
+  left:50%;
+  transform:translateX(-50%);
+  padding: 15px 25px;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: 2px;
+  color: #fff;
+  background-color: darkgreen;
+  border: 2px solid black;
+  border-radius: 15px;
+}
 .bid{
   text-align: center;
 }
@@ -245,45 +261,9 @@ img{
   left:50%;
   z-index: 0;
 }
-.p1c0Up{
-  transform: translate(-100%, -20%);
+.p1CardUp{
+  transform: translateY(-20%);
   transition-duration: 1s;
-}
-.p1c1Up{
-  transform: translate(-80%, -20%);
-  transition-duration: 1s;
-}
-.p1c2Up{
-  transform: translate(-60%, -20%);
-  transition-duration: 1s;
-}
-.p1c3Up{
-  transform: translate(-40%, -20%);
-  transition-duration: 1s;
-}
-.p1c4Up{
-  transform: translate(-20%, -20%);
-  transition-duration: 1s;
-}
-.p1c5Up{
-  transform: translate(0%, -20%);
-  transition-duration: 1s;
-}
-.trick0{
-  transform: translateX(-2000%) !important;
-  transition-duration: 2s;
-}
-.trick1{
-  transform: translateY(2000%) !important;
-  transition-duration: 2s;
-}
-.trick2{
-  transform: translateX(2000%) !important;
-  transition-duration: 2s;
-}
-.trick3{
-  transform: translateY(-2000%) !important;
-  transition-duration: 2s;
 }
 .darkenImage{
   filter:brightness(.3);
@@ -327,4 +307,22 @@ img{
     transform: translate(-40px,160px);
     transition-duration: 1s;
   }
+}
+/*precedence inside of GSAP is handled differently than CSS. to get a higher rank I
+added !important to make it work even though its defined at the bottom of the stylesheet */
+.trick0{
+  transform: translateX(2000%) !important;
+  transition-duration: 2s;
+}
+.trick1{
+  transform: translateY(2000%) !important;
+  transition-duration: 2s;
+}
+.trick2{
+  transform: translateX(-2000%) !important;
+  transition-duration: 2s;
+}
+.trick3{
+  transform: translateY(-2000%) !important;
+  transition-duration: 2s;
 }
